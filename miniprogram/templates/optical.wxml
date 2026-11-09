@@ -1,0 +1,68 @@
+<template name="optical-panel">
+  <view class="opt-panel">
+    <view class="opt-title">{{allowSimulation ? '实时光学测试' : '光学信号'}}</view>
+    <view class="opt-hint">前置摄像头仅在本机提取亮度，不拍照、不录像、不保存或上传画面。功能待真机验证。</view>
+    <camera wx:if="{{mounted}}" class="opt-camera" data-session="{{cameraEpoch}}" device-position="front" flash="off" frame-size="small" mode="normal" bindinitdone="onCameraReady" binderror="onCameraError" bindstop="onCameraStop"></camera>
+    <view wx:else class="opt-placeholder">摄像头未开启</view>
+    <view class="opt-row">
+      <button class="opt-button opt-primary" bindtap="startOptical" disabled="{{busy || !canCamera}}">{{active ? '重新开启相机' : '开启前置摄像头'}}</button>
+      <button class="opt-button" bindtap="stopOptical" disabled="{{!active && !busy}}">停止</button>
+    </view>
+    <view wx:if="{{capability}}" class="opt-hint">{{capability}}</view>
+    <view wx:if="{{allowSimulation}}" class="opt-row">
+      <button class="opt-button" bindtap="startOpticalSimulation">播放模拟周期</button>
+      <button class="opt-button" bindtap="openCameraSettings">权限设置</button>
+    </view>
+    <view class="opt-status">{{status}}</view>
+    <view class="opt-hint">{{source === 'simulation' ? '模拟信号 · 非真机' : '相机亮度（0–255，非 lux）'}} · {{state}}</view>
+    <view class="opt-grid">
+      <view><text class="opt-label">原始 / 平滑</text><text class="opt-value">{{raw}} / {{filtered}}</text></view>
+      <view><text class="opt-label">基准亮度</text><text class="opt-value">{{baseline}}</text></view>
+      <view><text class="opt-label">相对基准</text><text class="opt-value">{{ratio}}</text></view>
+      <view><text class="opt-label">测试周期次数</text><text class="opt-value">{{testCount}}</text></view>
+    </view>
+    <view class="opt-meter"><view class="opt-meter-fill" style="width: {{meter}}%;"></view><view class="opt-marker opt-dark-marker" style="left: {{darkMarker}}%;"></view><view class="opt-marker opt-light-marker" style="left: {{lightMarker}}%;"></view></view>
+    <view class="opt-hint">遮挡 ≤ {{darkPercent}}%（{{darkValue}}） / 恢复 ≥ {{lightPercent}}%（{{lightValue}}）</view>
+    <view class="opt-hint">{{frameInfo}} · 校准 {{progress}}%</view>
+    <view class="opt-row">
+      <button class="opt-button" bindtap="recalibrateOptical" disabled="{{!active}}">重新校准</button>
+      <button class="opt-button" bindtap="clearOpticalTest">清零测试次数</button>
+    </view>
+  </view>
+</template>
+
+<template name="optical-privacy">
+  <view wx:if="{{privacyVisible}}" class="opt-modal-mask">
+    <view class="opt-modal">
+      <view class="opt-title">摄像头用途与隐私</view>
+      <view class="opt-hint">画面仅在本机内存中计算亮度以检测遮挡周期，不保存、不上传。停止或离开页面即释放摄像头。</view>
+      <button class="opt-button" bindtap="openPrivacy">阅读隐私保护指引</button>
+      <button id="fitness-privacy-agree" class="opt-button opt-primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并授权摄像头</button>
+      <button class="opt-button" bindtap="rejectPrivacy">取消</button>
+    </view>
+  </view>
+</template>
+
+<template name="optical-settings">
+  <view class="opt-page-title">光学计数设置</view>
+  <view class="opt-hint">边测试边调节，参数只保存在本机。离开页面会停止采集；返回后需重新开启与校准。</view>
+  <view class="opt-live-strip">
+    <view class="opt-live-values"><text>亮度 {{optical.filtered}}</text><text>相对 {{optical.ratio}}</text><text>测试 {{optical.testCount}} 次</text></view>
+    <view class="opt-hint">暗 ≤ {{optical.darkPercent}}% / 亮 ≥ {{optical.lightPercent}}% · {{optical.state}}</view>
+  </view>
+  <template is="optical-panel" data="{{...optical}}" />
+  <view class="opt-panel">
+    <view class="opt-title">计数阈值与节奏</view>
+    <view class="opt-hint">百分比相对于校准亮度；低于遮挡阈值并稳定恢复后计一次。两个阈值始终保留至少 5% 间距。</view>
+    <view wx:for="{{sliders}}" wx:key="key" class="opt-slider">
+      <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.value}} {{item.unit}}</text></view>
+      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#285d3e" bindchanging="onSettingChanging" bindchange="onSettingChange" />
+    </view>
+    <view class="opt-hint">拖动立即应用，松手保存；基准保留，未完成的半个周期会清除。改变环境光后请重新校准。默认参数仅为实验起点。</view>
+    <button class="opt-button" bindtap="resetOpticalSettings">恢复默认参数</button>
+  </view>
+  <view wx:if="{{storageMessage}}" class="opt-warning">{{storageMessage}}</view>
+  <view class="opt-hint">{{optical.device}}</view>
+  <view class="opt-hint">{{appName}} · v{{version}}</view>
+  <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
+</template>

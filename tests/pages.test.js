@@ -2,27 +2,16 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
-const { createRequire } = require('node:module');
+const { createRuntime } = require('./helpers/runtime');
 
 function loadPage(name) {
-  const filename = path.resolve(__dirname, '../miniprogram/pages/' + name + '/index.js');
-  let definition;
-  // 不注入 wx 或定时器：这些页面应仅构建展示数据。
-  vm.runInNewContext(fs.readFileSync(filename, 'utf8'), {
-    Page: (value) => { definition = value; }, require: createRequire(filename)
-  }, { filename });
-  return {
-    ...definition,
-    data: structuredClone(definition.data),
-    setData(patch) { Object.assign(this.data, patch); }
-  };
+  return createRuntime().loadPage(name);
 }
 
 test('首页/项目列表的全部入口均能加载对应运动，不串项目或单位', () => {
   const home = loadPage('home');
   const selection = loadPage('exercises');
-  const cards = selection.data.sections.flatMap((section) => section.exercises);
+  const cards = selection.data.exercises;
   assert.deepEqual(home.data.exercises.map((item) => item.id), ['push-up', 'sit-up', 'squat', 'plank']);
   assert.deepEqual(cards.map((item) => item.id), home.data.exercises.map((item) => item.id));
   const app = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../miniprogram/app.json'), 'utf8'));

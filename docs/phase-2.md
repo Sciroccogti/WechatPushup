@@ -85,4 +85,4 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check-wechat.p
 首条控制台错误（如有）：
 ```
 
-本阶段完成后停止，等待用户下一阶段指令。
+阶段2交付后，用户明确要求项目选择改为最近使用排序，并直接进入阶段4接入光学与实时调参。当前行为见 [阶段4交付文档](phase-4.md)，本文件保留阶段2历史记录。

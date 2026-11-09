@@ -1,4 +1,2 @@
-<view class="page">
-  <empty-state heading="个人设置" description="个人设置功能正在准备中。" show-home="{{false}}" />
-  <view class="muted version">{{appName}} · v{{version}}</view>
-</view>
+<import src="../../templates/optical.wxml" />
+<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version}}" /></view>

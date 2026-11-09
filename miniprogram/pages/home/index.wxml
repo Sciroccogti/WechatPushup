@@ -5,10 +5,10 @@
   <view class="welcome-card">
     <view class="welcome-label">你的训练，从这里开始</view>
     <view class="welcome-title">今天想练什么？</view>
-    <view class="welcome-description">先选好运动，再查看训练准备界面。</view>
+    <view class="welcome-description">选好运动，开启触屏或光学自由计数。</view>
     <navigator class="button choose-link" url="/pages/exercises/index" hover-class="button-hover">选择训练项目 <text aria-hidden="true">↗</text></navigator>
   </view>
-  <view class="section-heading"><text>运动项目</text><text class="muted">{{exercises.length}} 项可选</text></view>
+  <view class="section-heading"><text>运动项目</text><text class="muted">最近使用优先</text></view>
   <view class="exercise-grid">
     <navigator wx:for="{{exercises}}" wx:key="id" class="exercise-tile" url="{{item.trainingUrl}}" hover-class="button-hover">
       <view class="tile-top"><text class="tile-number">{{item.number}}</text><text class="type-tag {{item.isTimed ? 'type-timed' : ''}}">{{item.typeLabel}}</text></view>
@@ -16,6 +16,6 @@
       <view class="tile-unit">{{item.unit}} / 组</view>
     </navigator>
   </view>
-  <view class="muted availability">当前可查看训练准备界面，计数与计时功能准备中。</view>
+  <view class="muted availability">光学参数可在设置中实时测试和调节；实际效果待真机验证。平板支撑计时准备中。</view>
   <navigator class="record-link" url="/pages/history/index" open-type="switchTab" hover-class="button-hover">查看训练记录 <text aria-hidden="true">›</text></navigator>
 </view>

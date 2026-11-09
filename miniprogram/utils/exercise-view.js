@@ -13,8 +13,12 @@ function toExerciseView(exercise, index) {
   });
 }
 
-function getExerciseViews() {
-  return EXERCISES.map(toExerciseView);
+function getExerciseViews(recentIds) {
+  const recent = Array.isArray(recentIds) ? recentIds : [];
+  return EXERCISES.map(toExerciseView).sort((a, b) => {
+    const rank = (id) => recent.includes(id) ? recent.indexOf(id) : recent.length;
+    return rank(a.id) - rank(b.id) || EXERCISES.findIndex((item) => item.id === a.id) - EXERCISES.findIndex((item) => item.id === b.id);
+  });
 }
 
 function getExerciseViewById(id) {

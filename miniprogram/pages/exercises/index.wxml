@@ -1,14 +1,12 @@
 <view class="page">
   <view class="page-heading">今天，专注一项运动</view>
-  <view class="muted page-description">选择想练的项目，查看训练准备界面。</view>
-  <view wx:for="{{sections}}" wx:for-item="section" wx:key="id" class="exercise-section">
-    <view class="section-title">{{section.title}}</view>
-    <view class="muted section-description">{{section.description}}</view>
-    <navigator wx:for="{{section.exercises}}" wx:key="id" class="exercise-row" url="{{item.trainingUrl}}" open-type="redirect" hover-class="button-hover">
+  <view class="muted page-description">按最近使用排序，选择想练的项目。</view>
+  <view class="exercise-section">
+    <navigator wx:for="{{exercises}}" wx:key="id" class="exercise-row" url="{{item.trainingUrl}}" open-type="redirect" hover-class="button-hover">
       <view class="exercise-mark">{{item.number}}</view>
       <view class="exercise-info"><view class="exercise-name">{{item.name}}</view><view class="exercise-description">{{item.description}}</view></view>
       <view class="exercise-trailing"><text class="type-tag {{item.isTimed ? 'type-timed' : ''}}">{{item.unit}}</text><text class="arrow" aria-hidden="true">›</text></view>
     </navigator>
   </view>
-  <view class="muted availability">计数、计时与个人计划准备中。此处可先查看各项目的训练界面。</view>
+  <view wx:if="{{storageWarning}}" class="muted availability">{{storageWarning}}</view>
 </view>

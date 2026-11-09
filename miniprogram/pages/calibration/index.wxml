@@ -1,3 +1,2 @@
-<view class="page">
-  <empty-state heading="光学校准" description="光学模式待设备验证，目前尚未开放。" />
-</view>
+<import src="../../templates/optical.wxml" />
+<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version}}" /></view>

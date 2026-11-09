@@ -1,1 +1,1 @@
-.version { text-align: center; margin-top: 40rpx; }
+/* 设置与校准共用 templates/optical.wxml，样式由全局 optical.wxss 提供。 */

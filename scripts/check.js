@@ -28,6 +28,21 @@ function inside(appRoot, file) {
 function resolveAppPath(appRoot, owner, target) {
   return inside(appRoot, target.startsWith('/') ? path.join(appRoot, target.slice(1)) : path.resolve(path.dirname(owner), target));
 }
+function readTemplates(appRoot, file, seen = new Set()) {
+  if (seen.has(file)) return '';
+  seen.add(file);
+  const source = fs.readFileSync(file, 'utf8');
+  return source + [...source.matchAll(/<(?:import|include)\b[^>]*\bsrc="([^"]+)"/g)].map(([, target]) => readTemplates(appRoot, resolveAppPath(appRoot, file, target), seen)).join('\n');
+}
+function readModules(appRoot, file, seen = new Set()) {
+  if (seen.has(file)) return '';
+  seen.add(file);
+  const source = fs.readFileSync(file, 'utf8');
+  return source + [...source.matchAll(/\brequire\(['"](\.[^'"]+)['"]\)/g)].map(([, target]) => {
+    const dependency = inside(appRoot, path.resolve(path.dirname(file), target) + '.js');
+    return readModules(appRoot, dependency, seen);
+  }).join('\n');
+}
 function checkApp(appRoot, projectFile) {
   const project = readJson(projectFile);
   if (path.resolve(path.dirname(projectFile), project.miniprogramRoot) !== appRoot || project.compileType !== 'miniprogram') throw new Error('Incorrect native project root: ' + projectFile);
@@ -48,8 +63,8 @@ function checkApp(appRoot, projectFile) {
     }
     const config = readJson(stem + '.json');
     if (component && config.component !== true) throw new Error('Component flag missing: ' + stem);
-    const js = fs.readFileSync(stem + '.js', 'utf8');
-    const wxml = fs.readFileSync(stem + '.wxml', 'utf8');
+    const js = readModules(appRoot, stem + '.js');
+    const wxml = readTemplates(appRoot, stem + '.wxml');
     for (const [, handler] of wxml.matchAll(/\b(?:bind|catch):?[\w]+="([A-Za-z_]\w*)"/g)) {
       if (!new RegExp('\\b' + handler + '\\s*\\(').test(js)) throw new Error('Missing event handler: ' + stem + ' / ' + handler);
     }
@@ -79,8 +94,8 @@ function checkApp(appRoot, projectFile) {
       const dependency = inside(appRoot, path.resolve(path.dirname(file), target));
       if (!['.js', '.json'].some((ext) => fs.existsSync(dependency + ext))) throw new Error('Missing module: ' + dependency);
     }
-    if (/\bwx\.(request|uploadFile|connectSocket|login|setStorageSync|setStorage|createCamera|startLightSensor|onLightSensorChange)\s*\(/.test(source) || /\.(takePhoto|startRecord)\s*\(/.test(source)) throw new Error('Unexpected API for current stage: ' + file);
-    if (appRoot === product && /\bwx\./.test(source)) throw new Error('Stage 2 must not initialize platform services: ' + file);
+    if (/\bwx\.(request|uploadFile|connectSocket|login|createCamera|startLightSensor|onLightSensorChange)\s*\(/.test(source) || /\.(takePhoto|startRecord)\s*\(/.test(source)) throw new Error('Unexpected network/capture API: ' + file);
+    if (/\.(getStorageSync|setStorageSync)\s*\(/.test(source) && file !== path.join(product, 'services/preferences.js')) throw new Error('Storage must go through preferences service: ' + file);
   });
   return app.pages.length;
 }
@@ -89,6 +104,8 @@ const demoPageCount = checkApp(demo, path.join(demo, 'project.config.json'));
 if (pageCount !== 12) throw new Error('The app must register all 12 planned pages.');
 const wxml = fs.readFileSync(path.join(demo, 'pages/index/index.wxml'), 'utf8');
 if (!wxml.includes('frame-size="small"') || !wxml.includes('device-position="front"') || !wxml.includes('wx:if="{{cameraMounted}}"')) throw new Error('Demo camera safety attributes missing');
+const opticalTemplate = fs.readFileSync(path.join(product, 'templates/optical.wxml'), 'utf8');
+if (!opticalTemplate.includes('frame-size="small"') || !opticalTemplate.includes('wx:if="{{mounted}}"')) throw new Error('Production camera safety attributes missing');
 const { EXERCISES } = require('../miniprogram/config/exercises');
 if (new Set(EXERCISES.map((item) => item.id)).size !== EXERCISES.length) throw new Error('Duplicate exercise IDs');
 for (const item of EXERCISES) {

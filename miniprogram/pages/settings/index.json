@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "个人设置",
-  "usingComponents": {
-    "empty-state": "/components/empty-state/index"
-  }
+  "navigationBarTitleText": "设置与光学测试"
 }

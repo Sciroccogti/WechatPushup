@@ -1,5 +1,2 @@
-const { APP_INFO } = require('../../config/app');
-
-Page({
-  data: { appName: APP_INFO.name, version: APP_INFO.version }
-});
+const { createOpticalSettingsPage } = require('../../services/optical-settings-page');
+Page(createOpticalSettingsPage());
