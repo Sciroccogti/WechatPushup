@@ -1,6 +1,6 @@
 {
   "name": "wechat-fitness-coach",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "description": "随身健身教练：原生微信小程序与独立光学实验",
   "scripts": {

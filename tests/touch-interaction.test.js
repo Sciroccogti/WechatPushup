@@ -66,7 +66,7 @@ test('三项触屏使用实际落点涟漪，整页背景换同色系色彩，�
     h.advance(500); page.onTouchStart(down(150, 360)); assert.equal(page.data.count, 1); assert.equal(page.data.touchRipples.length, 0);
     page.onTouchEnd(up); page.onTouchStart(down(150, 360));
     assert.equal(page.data.count, 2); assert.notEqual(page.data.touchRipples[0].color, first.color);
-    const before = page.data.count; page.ignoreControlTouch(down()); assert.equal(page.data.count, before);
+    const before = page.data.count; page.onControlTouchStart(down()); assert.equal(page.data.count, before);
     page.pauseCounting(); assert.equal(page.data.touchRipples.length, 0);
     page.onTouchEnd(up); page.onTouchStart(down()); assert.equal(page.data.count, before); assert.equal(page.data.touchRipples.length, 0);
     page.onUnload(); assert.equal(h.timers.size, 0);
@@ -76,7 +76,7 @@ test('三项触屏使用实际落点涟漪，整页背景换同色系色彩，�
 test('手指从大触区移动到控件再松开，不会锁住下一次触屏', () => {
   const h = createRuntime(); const page = h.openPage('training', { exerciseId: 'push-up' });
   page.startCounting(); page.onTouchStart(down());
-  page.ignoreControlTouch({ type: 'touchend', touches: [] }); h.advance(800);
+  page.onTouchEnd({ type: 'touchend', touches: [] }); h.advance(800);
   page.onTouchStart(down()); assert.equal(page.data.count, 2); page.onTouchCancel();
   page.onUnload(); assert.equal(h.timers.size, 0);
 });
@@ -88,7 +88,7 @@ test('平板大区域可开始/继续计时，触屏反馈不清零/暂停时间
   page.onTouchStart(down(200, 300)); assert.equal(page.data.count, 1); assert.equal(page.data.phase, 'running');
   page.onTouchEnd(up); h.advance(1000); assert.equal(page.data.count, 2);
   page.pauseCounting(); h.advance(10000); assert.equal(page.data.count, 2);
-  page.ignoreControlTouch(down(40, 400)); page.startCounting({ detail: { x: 40, y: 900 } });
+  page.onControlTouchStart(down(40, 400)); page.startCounting({ detail: { x: 40, y: 900 } });
   assert.equal(page.data.touchRipples[0].y, '400px'); // 滚动后的控件tap坐标不用于视口涟漪。
   h.advance(1000); assert.equal(page.data.count, 3);
   page.onHide(); assert.equal(h.timers.size, 0);
@@ -118,7 +118,7 @@ test('空项目入口可以就地选择；反馈颜色不重复且无坐标时�
   assert.ok(PALETTE.includes(nextTouchFeedback(down(), null, () => NaN).color));
 });
 
-test('训练大区域绑定根触摸事件，所有控件与相机/隐私模板均阻止冒泡误计', () => {
+test('训练大区域绑定根触摸事件，控件与相机/隐私用mark标记排除而不阻断按钮事件', () => {
   const markup = fs.readFileSync(path.resolve(__dirname, '../miniprogram/pages/training/index.wxml'), 'utf8');
   assert.ok(markup.includes('bindtouchstart="onTouchStart"'));
   const stack = []; let controls = 0;
@@ -127,11 +127,12 @@ test('训练大区域绑定根触摸事件，所有控件与相机/隐私模板�
     const protectedTags = ['button', 'picker', 'navigator', 'input'];
     if (protectedTags.includes(tag) || (tag === 'template' && /is="optical-(panel|privacy)"/.test(attributes))) {
       controls += 1;
-      assert.ok(stack.some((node) => node.attributes.includes('catchtouchstart="ignoreControlTouch"') && node.attributes.includes('catchtouchend="ignoreControlTouch"')), tag + ' must not bubble to counter');
+      assert.ok(stack.some((node) => node.attributes.includes('mark:control="{{true}}"')), tag + ' must be excluded from counting');
+      assert.equal(stack.some((node) => /catch:?touch(?:start|end|cancel)=/.test(node.attributes)), false, tag + ' must receive a complete native touch/tap sequence');
     }
     if (!attributes.trimEnd().endsWith('/')) stack.push({ tag, attributes });
   }
   assert.equal(stack.length, 0); assert.ok(controls > 10);
   const styles = fs.readFileSync(path.resolve(__dirname, '../miniprogram/pages/training/index.wxss'), 'utf8');
-  assert.ok(styles.includes('min-height: 60vh')); assert.ok(styles.includes('pointer-events: none')); assert.ok(styles.includes('300vmax'));
+  assert.ok(styles.includes('min-height: 60vh')); assert.ok(styles.includes('pointer-events: none')); assert.ok(styles.includes('12vmax')); assert.ok(styles.includes('overflow: hidden')); assert.equal(styles.includes('300vmax'), false);
 });

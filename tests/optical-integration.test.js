@@ -48,7 +48,7 @@ test('光学校准不接收触屏、暂停保留次数、继续光学重新校�
   assert.equal(page.data.count, 4);
   const oldFrame = h.frames[0];
   page.pauseCounting(); page.manualAdd(); oldFrame({});
-  assert.equal(page.data.count, 4); assert.equal(h.timers.size, 1); // 页面训练刷新仍在，相机定时器已清理。
+  assert.equal(page.data.count, 4); assert.equal(h.timers.size, 0); // 暂停同时清理相机和页面刷新定时器。
   page.startCounting(); page.onCameraReady();
   assert.equal(h.calls.camera, 2); assert.equal(page.data.optical.state, 'CALIBRATING');
   h.hold(160, 3500); assert.equal(page.data.count, 4);

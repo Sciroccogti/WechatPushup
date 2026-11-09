@@ -16,6 +16,7 @@ function createRuntime(options = {}) {
   const gyroListeners = new Set();
   const gyroStarts = [];
   const calls = { camera: 0, stop: 0, writes: 0, privacy: 0, gyroStart: 0, gyroStop: 0 };
+  const renderPatches = [];
   let now = 100000;
   let timerId = 0;
   let capturedPage;
@@ -85,6 +86,7 @@ function createRuntime(options = {}) {
     capturedPage = null;
     loadModule(path.join(root, 'pages', name, 'index.js'), true);
     const page = { ...capturedPage, data: structuredClone(capturedPage.data), setData(patch, callback) {
+      renderPatches.push(structuredClone(patch));
       for (const [key, value] of Object.entries(patch)) {
         const keys = key.split('.');
         let target = this.data;
@@ -97,7 +99,7 @@ function createRuntime(options = {}) {
     return page;
   }
   return {
-    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage, redirects, gyroListeners, gyroStarts,
+    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage, redirects, gyroListeners, gyroStarts, renderPatches,
     now() { return now; },
     loadPage,
     openPage(name, params) { const page = loadPage(name); if (page.onLoad) page.onLoad(params); if (page.onShow) page.onShow(); return page; },

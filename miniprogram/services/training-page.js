@@ -122,18 +122,15 @@ function createTrainingPage(surface) {
       this._rippleSequence = (this._rippleSequence || 0) + 1; this._timerTouchHeld = false;
       if (render && this._visible) this.setData({ touchRipples: [] });
     },
-    ignoreControlTouch(event) {
-      // 控件不加数；仅记下真实视口坐标供“开始计时”按钮使用。
-      if (event && ['touchend', 'touchcancel'].includes(event.type)) {
-        this.onTouchEnd(event.type === 'touchcancel' ? { touches: [] } : event);
-        return;
-      }
+    onControlTouchStart(event) {
+      // 用mark在根处理器排除控件；不拦截touchend，以保留原生按钮完整点击链。
       if (event && event.touches && event.touches.length === 1) {
         this._controlTouch = event.touches[0]; this._controlTouchAt = Date.now();
       }
     },
     _startTicker() {
       this._stopTicker();
+      if (!this._visible || !this._session || this._transfer || !['working', 'rest'].includes(this._session.state)) return;
       this._ticker = setInterval(() => {
         if (!this._visible || !this._session) return;
         this._session.tick(Date.now()); this._flushUsage(false); this._syncSession();
@@ -160,11 +157,16 @@ function createTrainingPage(surface) {
       const session = this._session;
       if (!session) return;
       const phase = this._preparingSensor ? 'calibrating' : session.state === 'working' ? 'running' : session.state;
-      this.setData({ phase, purpose: session.purpose, count: session.current().actual,
+      const values = { phase, purpose: session.purpose, count: session.current().actual,
         total: session.groups.reduce((sum, group) => sum + group.actual, 0), groupNumber: session.index + 1, groupCount: session.groups.length,
         target: session.current().target === null ? '—' : session.current().target, elapsed: durationLabel(session.activeMs),
         restSeconds: session.state === 'rest' ? Math.max(0, Math.ceil((session.restUntil - Date.now()) / 1000)) : session.state === 'paused' && session.pausedFrom === 'rest' ? Math.ceil(session.remainingRest / 1000) : 0,
-        groupRows: session.groups.map((group, index) => ({ number: index + 1, target: group.target === null ? '—' : group.target, actual: group.actual, status: group.status === 'completed' ? '完成' : group.status === 'skipped' ? '跳过' : '待完成' })) });
+        groupRows: session.groups.map((group, index) => ({ number: index + 1, target: group.target === null ? '—' : group.target, actual: group.actual, status: group.status === 'completed' ? '完成' : group.status === 'skipped' ? '跳过' : '待完成' })) };
+      const patch = {};
+      for (const [key, value] of Object.entries(values)) {
+        if (typeof value === 'object' ? JSON.stringify(value) !== JSON.stringify(this.data[key]) : value !== this.data[key]) patch[key] = value;
+      }
+      if (Object.keys(patch).length) this.setData(patch);
       if (['rest', 'ready', 'finished'].includes(session.state) && !this._preparingSensor) {
         if (session.state === 'ready' && this._lastSessionState === 'rest' && typeof wx.vibrateShort === 'function') wx.vibrateShort({ fail() {} });
         if (this._lastSessionState !== session.state) { this._stopSensors(); this._flushUsage(true); }
@@ -172,6 +174,8 @@ function createTrainingPage(surface) {
         else if (surface !== 'rest' && !this._autoStart) this._route('rest', false);
       }
       this._lastSessionState = session.state;
+      if (!this._transfer && ['working', 'rest'].includes(session.state)) { if (!this._ticker) this._startTicker(); }
+      else this._stopTicker();
     },
     _route(page, autostart) {
       if (this._transfer || !this._visible) return;
@@ -268,6 +272,7 @@ function createTrainingPage(surface) {
       if (this._session.add(at)) { if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ fail() {} }); this._syncSession(); }
     },
     onTouchStart(event) {
+      if (event && event.mark && event.mark.control) return;
       if (!this._session || this._transfer || surface !== 'training') return;
       if (this.data.exercise.isTimed) {
         if (this._timerTouchHeld) return;
