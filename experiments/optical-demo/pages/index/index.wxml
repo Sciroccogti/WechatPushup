@@ -1,0 +1,84 @@
+<view class="page">
+  <view class="eyebrow">随身健身教练 / PHASE 0</view>
+  <view class="title">光学计数实验室</view>
+  <view class="notice">实验功能 · 待 Android / iPhone 真机验证</view>
+  <view class="description">前置摄像头提取亮度变化，不识别运动姿态。仅内存处理，不拍照、不录像、不保存或上传画面。</view>
+
+  <view class="card">
+    <view class="section-title">01 / 选择信号来源</view>
+    <button class="primary" bindtap="startCamera" disabled="{{busy || !canCamera}}">主动开启前置摄像头并校准</button>
+    <view wx:if="{{capabilityReason}}" class="hint">{{capabilityReason}}</view>
+    <view class="row">
+      <button class="secondary" bindtap="startTouch">触屏实验</button>
+      <button class="secondary" bindtap="openSettings">权限设置</button>
+    </view>
+    <picker mode="selector" range="{{scenarios}}" value="{{scenarioIndex}}" bindchange="onScenarioChange">
+      <view class="picker">模拟场景：{{scenarios[scenarioIndex]}} ▾</view>
+    </picker>
+    <button class="secondary full" bindtap="startSimulation">播放模拟信号（无需摄像头）</button>
+  </view>
+
+  <view class="card">
+    <view class="section-title">02 / 校准与实时信号</view>
+    <camera wx:if="{{cameraMounted}}" class="camera" device-position="front" flash="off" frame-size="small" mode="normal" bindinitdone="onCameraReady" binderror="onCameraError" bindstop="onCameraStop"></camera>
+    <view wx:else class="camera-placeholder">摄像头未挂载 · 不采集画面</view>
+    <view class="status {{issue ? 'warning' : ''}}">{{status}}</view>
+    <view class="progress"><view class="progress-fill" style="width: {{progress}}%;"></view></view>
+    <view class="signal-grid">
+      <view><text class="label">状态</text><text class="signal">{{state}}</text></view>
+      <view><text class="label">相对亮度</text><text class="signal">{{ratio}}</text></view>
+      <view><text class="label">原始 / 平滑</text><text class="signal">{{raw}} / {{filtered}}</text></view>
+      <view><text class="label">校准基准（非 lux）</text><text class="signal">{{baseline}}</text></view>
+    </view>
+    <view class="hint">{{frameInfo}} · 已处理 {{samples}} 个信号</view>
+    <view class="hint">亮度抽样耗时 {{processingMs}} ms；目标处理频率约 10 Hz，界面最多约 5 Hz。</view>
+    <view class="hint">校准时镜头保持无遮挡；手机平放屏幕朝上，先用手掌遮挡前置镜头并移开。</view>
+  </view>
+
+  <view class="card count-card">
+    <view class="section-title">03 / {{modeName}}</view>
+    <view class="count">{{count}}</view>
+    <view class="touch-zone {{source === 'touch' && active ? 'touch-enabled' : ''}}" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd" catchtouchcancel="onTouchEnd" catchtouchmove="preventMove">
+      {{source === 'touch' && active ? '轻触这里 +1 / 按住不连加' : '切换触屏后，此区域才会计数'}}
+    </view>
+    <view class="row">
+      <button class="secondary" bindtap="manualAdd" disabled="{{!active}}">手动 +1</button>
+      <button class="secondary" bindtap="undo">撤销 −1</button>
+    </view>
+    <view class="row">
+      <button class="secondary" bindtap="togglePause" disabled="{{!active && !busy && !paused}}">{{paused ? '恢复' : '暂停'}}</button>
+      <button class="secondary" bindtap="stop">停止采集</button>
+      <button class="secondary" bindtap="resetCount">清零</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">04 / 实验参数</view>
+    <view class="label">光学灵敏度 {{sensitivity}} / 100（修改后重新校准）</view>
+    <slider min="1" max="100" value="{{sensitivity}}" activeColor="#9be580" bindchange="onSensitivityChange" />
+    <view class="hint">遮挡阈值 ≤ {{darkThreshold}}；恢复阈值 ≥ {{lightThreshold}}，均为相对校准亮度。</view>
+    <view class="label spaced">触屏 / 统一计数最小间隔 {{minInterval}} ms</view>
+    <slider min="300" max="1500" step="100" value="{{minInterval}}" activeColor="#9be580" bindchange="onIntervalChange" />
+    <view class="hint">光学另有 900 ms 冷却、250 ms 遮挡及 250 ms 恢复最短时间；以上均待真机调参。</view>
+    <view class="switch-row"><text>有效计数震动反馈</text><switch color="#79b861" checked="{{vibration}}" bindchange="onVibrationChange" /></view>
+    <view class="hint">触屏灵敏度以最小间隔控制；微信触摸事件不提供可跨机型统一的鼻尖压力阈值。</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">05 / 验证信息</view>
+    <view class="hint">{{device}}</view>
+    <view class="hint">微信 {{version}} · 基础库 {{base}}</view>
+    <button class="secondary full" bindtap="copyDiagnostics">复制数值诊断（不含画面）</button>
+    <view class="hint">本 Demo 不保存训练数据。模拟通过 ≠ 真机通过。请按项目测试表分别记录 Android 和 iPhone 结果。</view>
+  </view>
+
+  <view wx:if="{{privacyVisible}}" class="modal-mask">
+    <view class="modal">
+      <view class="section-title">摄像头用途与隐私</view>
+      <view class="description">仅在此页面本地提取图像亮度以测试遮挡计数。画面不保存、不上传；停止或离开页面即释放摄像头。</view>
+      <button class="secondary full" bindtap="openPrivacy">阅读小程序隐私保护指引</button>
+      <button id="privacy-agree" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续授权摄像头</button>
+      <button class="secondary full" bindtap="rejectPrivacy">取消，使用触屏</button>
+    </view>
+  </view>
+</view>

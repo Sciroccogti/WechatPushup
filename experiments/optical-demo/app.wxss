@@ -1,0 +1,5 @@
+page { background: #101b25; color: #edf4f8; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+view, button, text { box-sizing: border-box; }
+button { font-size: 28rpx; border-radius: 18rpx; }
+button::after { border: 0; }
+button[disabled] { opacity: .45; }

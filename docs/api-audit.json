@@ -1,0 +1,25 @@
+{
+  "checkedOn": "2026-11-09",
+  "timezone": "Asia/Hong_Kong",
+  "method": "Direct HTTPS reads of official documentation and latest npm tarball; extracted declaration text only, no package execution",
+  "officialRepository": "https://github.com/wechat-miniprogram/api-typings",
+  "repositoryMasterPackageVersionObserved": "5.2.3",
+  "registryMetadata": "https://registry.npmjs.org/miniprogram-api-typings/latest",
+  "latestPublishedVersionObserved": "5.3.1",
+  "tarball": "https://registry.npmjs.org/miniprogram-api-typings/-/miniprogram-api-typings-5.3.1.tgz",
+  "registryIntegrity": "sha512-2CirO+C1z5RmKXDqTUSNbuyouHf5d0/KJTt+Qqi1EsiQYs8jlYhq7yWjp6EdTcJpvZzjuefZQCcDixYbrgIqow==",
+  "declarationFile": "package/types/wx/lib.wx.api.d.ts",
+  "ambientTermsWithNoMatches": ["AmbientLight", "LightSensor", "startLight", "onLight", "环境光", "光照"],
+  "cameraFrameApiFound": true,
+  "cameraFrameMinimumBaseLibrary": "2.7.0",
+  "demoCameraMinimumBaseLibrary": "2.32.3",
+  "demoHigherMinimumReason": "Explicit privacy authorization flow",
+  "officialDocumentsRead": [
+    "https://developers.weixin.qq.com/miniprogram/dev/component/camera.html",
+    "https://developers.weixin.qq.com/miniprogram/dev/api/media/camera/CameraContext.onCameraFrame.html",
+    "https://developers.weixin.qq.com/miniprogram/dev/api/media/camera/CameraFrameListener.start.html",
+    "https://developers.weixin.qq.com/miniprogram/dev/api/media/camera/CameraFrameListener.stop.html",
+    "https://developers.weixin.qq.com/miniprogram/dev/api/open-api/privacy/wx.requirePrivacyAuthorize.html"
+  ],
+  "hardwareValidation": { "android": "待真机验证", "ios": "待真机验证" }
+}

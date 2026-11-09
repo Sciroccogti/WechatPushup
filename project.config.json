@@ -1,0 +1,12 @@
+{
+  "description": "随身健身教练 · 阶段0光学实验",
+  "miniprogramRoot": "experiments/optical-demo/",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "fitness-optical-phase0",
+  "setting": {
+    "es6": true,
+    "minified": false,
+    "urlCheck": true
+  }
+}

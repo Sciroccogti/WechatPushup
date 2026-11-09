@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/index/index"],
+  "window": {
+    "navigationBarTitleText": "光学计数实验",
+    "navigationBarBackgroundColor": "#101b25",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#101b25"
+  },
+  "style": "v2"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "wechat-fitness-optical-experiment",
+  "version": "0.0.1",
+  "private": true,
+  "description": "阶段 0：微信原生小程序光学计数实验，硬件待真机验证",
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check.js",
+    "check:wechat": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check-wechat.ps1"
+  },
+  "engines": { "node": ">=20" }
+}
