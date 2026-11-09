@@ -27,3 +27,7 @@
 .opt-warning { padding: 20rpx; margin-top: 20rpx; background: #fff0d8; color: #785629; border-radius: 16rpx; font-size: 25rpx; }
 .opt-modal-mask { position: fixed; z-index: 1000; top: 0; bottom: 0; left: 0; right: 0; display: flex; align-items: center; background: rgba(0,0,0,.8); padding: 32rpx; }
 .opt-modal { width: 100%; padding: 32rpx; background: #fff; border-radius: 24rpx; }
+.opt-panel-compact { display: flex; align-items: center; justify-content: center; padding: 10rpx 20rpx; margin-top: 0; background: rgba(255,255,255,.35); border: 0; }
+.opt-panel-compact .opt-camera { width: 120rpx; height: 80rpx; margin: 0 24rpx 0 0; }
+.opt-panel-compact .opt-title, .opt-panel-compact .opt-hint, .opt-panel-compact .opt-row, .opt-panel-compact .opt-status, .opt-panel-compact .opt-grid, .opt-panel-compact .opt-meter, .opt-panel-compact .opt-placeholder { display: none; }
+.opt-compact-readout { font-size: 23rpx; color: #36543f; }

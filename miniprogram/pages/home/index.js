@@ -1,12 +1,17 @@
 const { APP_INFO } = require('../../config/app');
-const { getExerciseViews } = require('../../utils/exercise-view');
+const { getExerciseViews, getExerciseSelection } = require('../../utils/exercise-view');
 const { PreferencesStore } = require('../../services/preferences');
 
 Page({
-  data: { appName: APP_INFO.name, exercises: getExerciseViews() },
+  data: { appName: APP_INFO.name, exercises: getExerciseViews(), sortOptions: ['累计训练时长', '最近使用'], sortIndex: 0, storageWarning: '' },
   onShow() {
     const store = new PreferencesStore(wx);
     const prefs = store.load();
-    this.setData({ exercises: getExerciseViews(prefs.recentExerciseIds, prefs.usageMs, prefs.sortMode), sortLabel: prefs.sortMode === 'duration' ? '累计训练时长优先' : '最近使用优先' });
+    this.setData(Object.assign(getExerciseSelection(prefs), { storageWarning: store.warning }));
+  },
+  onSortChange(event) {
+    const store = new PreferencesStore(wx);
+    store.setSortMode(Number(event.detail.value) === 0 ? 'duration' : 'recent');
+    this.setData(Object.assign(getExerciseSelection(store.value), { storageWarning: store.warning }));
   }
 });

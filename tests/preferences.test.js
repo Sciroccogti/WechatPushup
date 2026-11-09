@@ -20,7 +20,7 @@ test('最近使用去重、持久化，已使用优先，未使用保持配置�
 test('训练页选用即更新排序，首页与列表onShow读取新顺序，无效入口不写入', () => {
   const runtime = createRuntime();
   const home = runtime.openPage('home');
-  const selection = runtime.openPage('exercises');
+  const selection = runtime.openPage('home');
   const training = runtime.openPage('training', { exerciseId: 'plank' });
   training.onUnload();
   home.onShow(); selection.onShow();

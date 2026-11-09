@@ -10,7 +10,7 @@ function loadPage(name) {
 
 test('首页/项目列表的全部入口均能加载对应运动，不串项目或单位', () => {
   const home = loadPage('home');
-  const selection = loadPage('exercises');
+  const selection = loadPage('home');
   const cards = selection.data.exercises;
   assert.deepEqual(home.data.exercises.map((item) => item.id), ['push-up', 'sit-up', 'squat', 'plank']);
   assert.deepEqual(cards.map((item) => item.id), home.data.exercises.map((item) => item.id));
@@ -56,19 +56,21 @@ test('缺失/异常项目参数进入选择状态，并清除已有项目而不�
   }
 });
 
-test('选择/更换项目反复切换不会积累页面栈，首页快速入口可原路返回', () => {
+test('项目选择合并到训练页，旧路由和项目编号不再出现', () => {
   const readTemplate = (name) => fs.readFileSync(path.resolve(__dirname, '../miniprogram/pages/' + name + '/index.wxml'), 'utf8');
   function getNavigator(name, url) {
     const match = [...readTemplate(name).matchAll(/<navigator\b([^>]*)>/g)].find(([, attributes]) => attributes.includes('url="' + url + '"'));
     assert.ok(match, name + ' needs navigator ' + url);
     return (match[1].match(/open-type="([^"]+)"/) || [null, 'navigate'])[1];
   }
-  const selectType = getNavigator('exercises', '{{item.trainingUrl}}');
-  const changeType = getNavigator('training', '/pages/exercises/index');
-  let stack = ['home', 'exercises'];
-  const visit = (type, target) => { if (type === 'redirect') stack[stack.length - 1] = target; else stack.push(target); };
-  for (let i = 0; i < 30; i += 1) { visit(selectType, 'training'); visit(changeType, 'exercises'); }
-  assert.deepEqual(stack, ['home', 'exercises']);
+  const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../miniprogram/app.json'), 'utf8'));
+  assert.equal(config.pages.includes('pages/exercises/index'), false);
+  assert.equal(fs.existsSync(path.resolve(__dirname, '../miniprogram/pages/exercises/index.wxml')), false);
+  assert.equal(readTemplate('home').includes('item.number'), false);
+  assert.equal(readTemplate('home').includes('pages/exercises/'), false);
+  assert.equal(readTemplate('training').includes('bindchange="onExerciseChange"'), true);
+  assert.equal(readTemplate('training').includes('bindchange="onSortChange"'), true);
+  for (const item of loadPage('home').data.exercises) assert.equal(item.number, undefined);
   assert.equal(getNavigator('home', '{{item.trainingUrl}}'), 'navigate');
   assert.equal(getNavigator('home', '/pages/history/index'), 'switchTab');
 });

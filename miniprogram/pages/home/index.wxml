@@ -2,21 +2,16 @@
   <view class="brand">{{appName}}</view>
   <view class="hero">从适合自己的<text class="hero-line">节奏开始。</text></view>
   <view class="muted intro">选择一项运动，为下一次进步做好准备。</view>
-  <view class="welcome-card">
-    <view class="welcome-label">你的训练，从这里开始</view>
-    <view class="welcome-title">今天想练什么？</view>
-    <view class="welcome-description">评估当前能力，安排自己的长期训练节奏。</view>
-    <navigator class="button choose-link" url="/pages/exercises/index" hover-class="button-hover">选择训练项目 <text aria-hidden="true">↗</text></navigator>
-  </view>
-  <view class="section-heading"><text>运动项目</text><text class="muted">{{sortLabel}}</text></view>
+  <view class="section-heading"><text>今天练什么？</text><picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="sort-picker">{{sortOptions[sortIndex]}} ▾</view></picker></view>
   <view class="exercise-grid">
     <navigator wx:for="{{exercises}}" wx:key="id" class="exercise-tile" url="{{item.trainingUrl}}" hover-class="button-hover">
-      <view class="tile-top"><text class="tile-number">{{item.number}}</text><text class="type-tag {{item.isTimed ? 'type-timed' : ''}}">{{item.typeLabel}}</text></view>
+      <view class="tile-top"><text class="type-tag {{item.isTimed ? 'type-timed' : ''}}">{{item.typeLabel}}</text></view>
       <view class="exercise-name">{{item.name}}</view>
       <view class="tile-unit">{{item.unit}} / 组</view>
       <view class="tile-unit">{{item.usageLabel}}</view>
     </navigator>
   </view>
+  <view wx:if="{{storageWarning}}" class="opt-warning">{{storageWarning}}</view>
   <view class="muted availability">俯卧撑用光学，仰卧起坐和深蹲用胸前陀螺仪，平板支撑用计时器。自动检测效果待真机验证。</view>
   <navigator class="record-link" url="/pages/history/index" open-type="switchTab" hover-class="button-hover">查看训练记录 <text aria-hidden="true">›</text></navigator>
 </view>

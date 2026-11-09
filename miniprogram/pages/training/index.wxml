@@ -1,39 +1,44 @@
 <import src="../../templates/optical.wxml" />
-<view class="page">
-  <block wx:if="{{exercise && !blockedMessage}}">
-    <view class="training-heading"><view><view class="eyebrow">{{purpose === 'plan' ? '五组计划' : purpose === 'assessment' ? '能力测试' : '自由训练'}}</view><view class="exercise-title">{{exercise.name}}</view></view></view>
-    <view class="counter-preview">
-      <view class="preview-heading"><text>第 {{groupNumber}} / {{groupCount}} 组</text><text class="status-pill">{{phase === 'running' ? '训练中' : phase === 'calibrating' ? '设备校准中' : phase === 'paused' ? '已暂停' : phase === 'rest' ? '休息中' : phase === 'ready' ? '准备下一组' : phase === 'finished' ? '已结束' : '尚未开始'}}</text></view>
-      <view class="counter-value">{{count}}<text class="counter-unit">{{exercise.unit}}</text></view>
-      <view class="counter-caption">本组目标 {{target}} {{exercise.unit}}</view>
-      <view class="preview-divider"></view><view class="preview-summary"><text>累计 {{total}} {{exercise.unit}}</text><text>训练 {{elapsed}}</text></view>
+<view class="training-scene {{phase === 'running' ? 'training-active' : ''}}" style="background-color: {{feedbackColor}};" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd" bindtouchcancel="onTouchCancel">
+  <view class="training-backdrop" style="background-color: {{feedbackColor}};" aria-hidden="true"></view>
+  <view wx:for="{{touchRipples}}" wx:key="id" class="touch-ripple" style="left: {{item.x}}; top: {{item.y}}; background-color: {{item.color}};" aria-hidden="true"></view>
+  <view wx:for="{{touchRipples}}" wx:key="id" class="touch-confirmation" style="left: {{item.x}}; top: {{item.y}};" aria-hidden="true">{{exercise.isTimed ? '计时中' : '+1'}}</view>
+  <view class="page training-page">
+    <view class="training-toolbar" catchtouchstart="ignoreControlTouch" catchtouchend="ignoreControlTouch" catchtouchcancel="ignoreControlTouch">
+      <picker class="exercise-picker" mode="selector" range="{{exerciseNames}}" value="{{exerciseIndex}}" bindchange="onExerciseChange" disabled="{{phase === 'running' || phase === 'calibrating'}}"><view>{{exercise ? exercise.name : '选择运动项目'}} ▾</view></picker>
+      <picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="training-sort">{{sortOptions[sortIndex]}} ▾</view></picker>
     </view>
-    <view class="card detail-card">
-      <view wx:if="{{exercise.isTimed}}" class="section-title">计时器 · 无需传感器</view>
-      <block wx:else>
-        <view class="section-title">计数方式</view>
-        <view class="opt-row"><button class="opt-button {{selectedMode === 'touch' ? 'opt-primary' : ''}}" bindtap="selectTouch">触屏</button><button wx:if="{{exercise.sensor === 'optical'}}" class="opt-button" bindtap="startOptical" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">开启光学</button><button wx:if="{{exercise.sensor === 'gyro'}}" class="opt-button" bindtap="startGyro" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">开启陀螺仪</button></view>
-        <navigator wx:if="{{exercise.sensor === 'optical'}}" class="opt-button tuning-link" url="/pages/calibration/index">俯卧撑光学阈值与实时测试 ›</navigator>
-        <view wx:if="{{exercise.sensor === 'gyro'}}">
-          <view class="muted spaced">手机竖向稳定固定在胸前或上身，先静止约1.2秒。只检测手机往返转动；上身角度变化小可能漏计，待真机验证。</view>
-          <picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker>
-          <view wx:if="{{selectedMode === 'gyro'}}" class="muted spaced">{{gyro.state}} · X {{gyro.x}} / Y {{gyro.y}} / Z {{gyro.z}} · 积分 {{gyro.angle}}</view>
+    <block wx:if="{{exercise && !blockedMessage}}">
+      <view class="training-touch-surface" catchtouchmove="preventTouchMove">
+        <view class="training-purpose">{{purpose === 'plan' ? '五组计划' : purpose === 'assessment' ? '能力测试' : '自由训练'}} · 第 {{groupNumber}} / {{groupCount}} 组</view>
+        <view class="training-phase">{{phase === 'running' ? '训练中' : phase === 'calibrating' ? '设备校准中' : phase === 'paused' ? '已暂停' : phase === 'rest' ? '休息中' : phase === 'ready' ? '准备下一组' : phase === 'finished' ? '已结束' : '准备开始'}}</view>
+        <view class="training-count">{{count}}<text class="training-unit">{{exercise.unit}}</text></view>
+        <view class="training-target">本组目标 {{target}} {{exercise.unit}}</view>
+        <view class="training-touch-hint">{{exercise.isTimed ? (phase === 'running' ? '轻触任意空白处，查看涟漪反馈' : '轻触大区域开始 / 继续计时') : (phase === 'running' ? '轻触屏幕大区域 +1' : '开始训练后，轻触大区域计数')}}</view>
+        <view class="training-touch-detail">{{exercise.isTimed ? '触屏不会暂停或重置已用时间' : selectedMode === 'optical' ? '光学 + 触屏同时可用 · 相邻信号合并去重' : selectedMode === 'gyro' ? '陀螺仪 + 触屏同时可用 · 相邻信号合并去重' : '长按不连加 · 触屏最小间隔 600 ms'}}</view>
+        <view class="training-metrics"><text>累计 {{total}} {{exercise.unit}}</text><text>训练 {{elapsed}}</text></view>
+      </view>
+      <view class="training-controls" catchtouchstart="ignoreControlTouch" catchtouchend="ignoreControlTouch" catchtouchcancel="ignoreControlTouch">
+        <view wx:if="{{phase !== 'running'}}" class="training-setup">
+          <view class="muted">暂停后可在上方更换项目；更换会结束当前训练并进入新项目的自由训练。</view>
+          <view wx:if="{{exercise.isTimed}}" class="section-title spaced">计时器 · 无需传感器</view>
+          <block wx:else>
+            <view class="opt-row"><button class="opt-button {{selectedMode === 'touch' ? 'opt-primary' : ''}}" bindtap="selectTouch">仅触屏</button><button wx:if="{{exercise.sensor === 'optical'}}" class="opt-button" bindtap="startOptical" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">光学 + 触屏</button><button wx:if="{{exercise.sensor === 'gyro'}}" class="opt-button" bindtap="startGyro" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">陀螺仪 + 触屏</button></view>
+            <navigator wx:if="{{exercise.sensor === 'optical'}}" class="opt-button tuning-link" url="/pages/calibration/index">俯卧撑光学阈值与实时测试 ›</navigator>
+            <view wx:if="{{exercise.sensor === 'gyro'}}"><view class="muted spaced">手机竖向固定胸前 / 上身，先静止校准；检测效果待真机验证。</view><picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker></view>
+          </block>
         </view>
-      </block>
-    </view>
-    <template wx:if="{{exercise.sensor === 'optical' && selectedMode === 'optical'}}" is="optical-panel" data="{{...optical}}" />
-    <view wx:if="{{!exercise.isTimed && selectedMode === 'touch'}}" class="touch-counter" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd" catchtouchcancel="onTouchEnd" catchtouchmove="preventTouchMove">{{phase === 'running' ? '轻触这里 +1' : '开始后轻触计数'}}<view class="touch-note">长按不连加 · 最小间隔600 ms</view></view>
-    <view wx:if="{{!exercise.isTimed}}" class="opt-row"><button class="opt-button" bindtap="manualAdd" disabled="{{phase !== 'running'}}">手动 +1</button><button class="opt-button" bindtap="undoCount" disabled="{{phase !== 'running'}}">撤销 −1</button><button class="opt-button" bindtap="resetCount" disabled="{{phase !== 'running'}}">本组清零</button></view>
-    <view class="opt-row"><button class="opt-button opt-primary" bindtap="startCounting" disabled="{{phase === 'running' || phase === 'calibrating' || phase === 'rest' || phase === 'ready' || phase === 'finished'}}">{{phase === 'paused' ? '继续训练' : '开始训练'}}</button><button class="opt-button" bindtap="pauseCounting" disabled="{{phase !== 'running' && phase !== 'calibrating'}}">暂停</button><button class="opt-button" bindtap="endCounting">结束本次</button></view>
-    <view wx:if="{{purpose === 'plan'}}" class="card detail-card">
-      <view class="section-title">本组操作</view>
-      <view class="opt-row"><button class="opt-button" bindtap="finishGroup" disabled="{{phase !== 'running'}}">提前完成本组</button><button class="opt-button" bindtap="skipGroup" disabled="{{phase !== 'running' && phase !== 'idle'}}">跳过本组</button></view>
-      <input class="field-input" type="number" value="{{targetDraft}}" bindinput="onTargetInput" placeholder="调整当前组目标" /><button class="opt-button" bindtap="applyTarget">应用目标</button>
-    </view>
-    <view wx:if="{{phase === 'rest' || phase === 'ready'}}" class="card detail-card"><view>休息 {{restSeconds}} 秒</view><button class="opt-button" bindtap="nextGroup">开始下一组</button></view>
-    <view wx:if="{{purpose === 'assessment'}}" class="muted spaced">完成当前有效最大次数/秒数后点击“结束本次”，总结页确认后更新能力值。不适时立即停止。</view>
-    <view wx:if="{{notice || storageMessage}}" class="opt-warning">{{notice}} {{storageMessage}}</view>
-    <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
-  </block>
-  <block wx:else><empty-state heading="{{blockedMessage || '请先选择运动项目'}}" /><navigator class="button button-primary spaced" url="/pages/exercises/index" open-type="redirect">选择项目 / 返回计划</navigator></block>
+        <view wx:if="{{exercise.sensor === 'optical' && selectedMode === 'optical'}}" class="training-sensor-dock"><template is="optical-panel" data="{{...optical, compact: phase === 'running'}}" /></view>
+        <view wx:if="{{selectedMode === 'gyro'}}" class="training-sensor-readout">陀螺仪 {{gyro.state}} · X {{gyro.x}} / Y {{gyro.y}} / Z {{gyro.z}}</view>
+        <view wx:if="{{!exercise.isTimed}}" class="opt-row"><button class="opt-button" bindtap="manualAdd" disabled="{{phase !== 'running'}}">手动 +1</button><button class="opt-button" bindtap="undoCount" disabled="{{phase !== 'running'}}">撤销 −1</button><button class="opt-button" bindtap="resetCount" disabled="{{phase !== 'running'}}">本组清零</button></view>
+        <view class="opt-row"><button class="opt-button opt-primary" bindtap="startCounting" disabled="{{phase === 'running' || phase === 'calibrating' || phase === 'rest' || phase === 'ready' || phase === 'finished'}}">{{phase === 'paused' ? '继续训练' : '开始训练'}}</button><button class="opt-button" bindtap="pauseCounting" disabled="{{phase !== 'running' && phase !== 'calibrating'}}">暂停</button><button class="opt-button" bindtap="endCounting">结束</button></view>
+        <view wx:if="{{purpose === 'plan' && phase !== 'running'}}" class="card detail-card"><view class="section-title">本组操作</view><view class="opt-row"><button class="opt-button" bindtap="finishGroup" disabled="{{phase !== 'paused' && phase !== 'idle'}}">提前完成本组</button><button class="opt-button" bindtap="skipGroup" disabled="{{phase !== 'paused' && phase !== 'idle'}}">跳过本组</button></view><input class="field-input" type="number" value="{{targetDraft}}" bindinput="onTargetInput" placeholder="调整当前组目标" /><button class="opt-button" bindtap="applyTarget">应用目标</button></view>
+        <view wx:if="{{phase === 'rest' || phase === 'ready'}}" class="card detail-card"><view>休息 {{restSeconds}} 秒</view><button class="opt-button" bindtap="nextGroup">开始下一组</button></view>
+        <view wx:if="{{purpose === 'assessment' && phase !== 'running'}}" class="muted spaced">完成有效能力测试后结束并确认结果；不适时停止。</view>
+        <view wx:if="{{notice || storageMessage}}" class="opt-warning">{{notice}} {{storageMessage}}</view>
+      </view>
+      <view catchtouchstart="ignoreControlTouch" catchtouchend="ignoreControlTouch" catchtouchcancel="ignoreControlTouch"><template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" /></view>
+    </block>
+    <block wx:else><view class="training-empty" catchtouchstart="ignoreControlTouch" catchtouchend="ignoreControlTouch" catchtouchcancel="ignoreControlTouch"><empty-state heading="{{blockedMessage || '在上方选择运动，开始训练'}}" /><navigator class="button button-primary spaced" url="/pages/home/index" open-type="switchTab">回到训练首页</navigator></view></block>
+  </view>
 </view>

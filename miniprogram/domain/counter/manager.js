@@ -3,6 +3,8 @@ const SOURCES = ['touch', 'optical', 'gyro'];
 class CounterManager {
   constructor(options) {
     this.minIntervalMs = options && options.minIntervalMs !== undefined ? options.minIntervalMs : 600;
+    this.touchIntervalMs = 600;
+    this.mergeWindowMs = 600;
     this.reset();
   }
   start(source) {
@@ -14,18 +16,24 @@ class CounterManager {
   pause() { this.running = false; this.held = false; }
   resume() { if (this.source) this.running = true; }
   stop() { this.pause(); this.source = null; }
-  reset() { this.count = 0; this.running = false; this.source = null; this.lastAt = -Infinity; this.held = false; }
+  reset() { this.count = 0; this.running = false; this.source = null; this.lastAt = -Infinity; this.lastTouchAt = -Infinity; this.lastSource = null; this.held = false; }
   addCount(source, at) {
     if (!this.running || !Number.isFinite(at)) return false;
-    if (source !== 'manual' && (source !== this.source || at - this.lastAt < this.minIntervalMs)) return false;
+    if (source !== 'manual') {
+      if (source !== 'touch' && source !== this.source) return false;
+      if (source === 'touch' && at - this.lastTouchAt < this.touchIntervalMs) return false;
+      const interval = this.lastSource !== source ? this.mergeWindowMs : this.minIntervalMs;
+      if (at - this.lastAt < interval) return false;
+    }
     this.count += 1;
-    if (source !== 'manual') this.lastAt = at;
+    if (source !== 'manual') { this.lastAt = at; this.lastSource = source; }
+    if (source === 'touch') this.lastTouchAt = at;
     return true;
   }
   undoCount() { this.count = Math.max(0, this.count - 1); return this.count; }
   getCount() { return this.count; }
   touchStart(at, contacts) {
-    if (this.source !== 'touch' || this.held) return false;
+    if (!this.running || !this.source || this.held) return false;
     this.held = true;
     if (contacts !== 1) return false;
     return this.addCount('touch', at);

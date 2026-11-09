@@ -101,7 +101,7 @@ test('累计时长排序迁移v1，活动时间保存可重试且不重复，打
   h.advance(10000); training.startCounting(); h.advance(1000); training.pauseCounting(); training.pauseCounting();
   assert.equal(h.storage.get(PREFERENCES_KEY).usageMs.squat, 3500);
   training.onUnload();
-  const selection = h.openPage('exercises'); assert.equal(selection.data.exercises[0].id, 'squat');
+  const selection = h.openPage('home'); assert.equal(selection.data.exercises[0].id, 'squat');
   selection.onSortChange({ detail: { value: 1 } }); assert.equal(selection.data.sortIndex, 1);
 });
 
@@ -180,7 +180,7 @@ test('累计时长与最近排序独立，旧偏好迁移后不丢光学参数�
   const store = new PreferencesStore(h.wx); const migrated = store.load();
   assert.equal(migrated.schemaVersion, 2); assert.equal(migrated.optical.darkRatio, 0.7); assert.equal(migrated.sortMode, 'duration');
   store.addUsage('squat', 60000); store.markUsed('plank');
-  const selection = h.openPage('exercises'); assert.equal(selection.data.exercises[0].id, 'squat');
+  const selection = h.openPage('home'); assert.equal(selection.data.exercises[0].id, 'squat');
   selection.onSortChange({ detail: { value: 1 } }); assert.equal(selection.data.exercises[0].id, 'plank');
   assert.equal(h.storage.get(PREFERENCES_KEY).optical.darkRatio, 0.7);
 });

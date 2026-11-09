@@ -1,7 +1,6 @@
 {
   "pages": [
     "pages/home/index",
-    "pages/exercises/index",
     "pages/assessment/index",
     "pages/plan/index",
     "pages/count-mode/index",

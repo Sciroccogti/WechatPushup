@@ -1,8 +1,9 @@
 <template name="optical-panel">
-  <view class="opt-panel">
+  <view class="opt-panel {{compact ? 'opt-panel-compact' : ''}}">
     <view class="opt-title">{{allowSimulation ? '实时光学测试' : '光学信号'}}</view>
     <view class="opt-hint">前置摄像头仅在本机提取亮度，不拍照、不录像、不保存或上传画面。功能待真机验证。</view>
     <camera wx:if="{{mounted}}" class="opt-camera" data-session="{{cameraEpoch}}" device-position="front" flash="off" frame-size="small" mode="normal" bindinitdone="onCameraReady" binderror="onCameraError" bindstop="onCameraStop"></camera>
+    <view wx:if="{{compact}}" class="opt-compact-readout">光学 + 触屏<view>{{state}} · 亮度比 {{ratio}}</view></view>
     <view wx:else class="opt-placeholder">摄像头未开启</view>
     <view class="opt-row">
       <button class="opt-button opt-primary" bindtap="startOptical" disabled="{{busy || !canCamera}}">{{active ? '重新开启相机' : '开启前置摄像头'}}</button>

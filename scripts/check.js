@@ -101,7 +101,8 @@ function checkApp(appRoot, projectFile) {
 }
 const pageCount = checkApp(product, path.join(root, 'project.config.json'));
 const demoPageCount = checkApp(demo, path.join(demo, 'project.config.json'));
-if (pageCount !== 12) throw new Error('The app must register all 12 planned pages.');
+if (pageCount !== 11) throw new Error('Expected 11 pages after merging exercise selection into training.');
+if (readJson(path.join(product, 'app.json')).pages.includes('pages/exercises/index')) throw new Error('Standalone exercise selector is retired.');
 const wxml = fs.readFileSync(path.join(demo, 'pages/index/index.wxml'), 'utf8');
 if (!wxml.includes('frame-size="small"') || !wxml.includes('device-position="front"') || !wxml.includes('wx:if="{{cameraMounted}}"')) throw new Error('Demo camera safety attributes missing');
 const opticalTemplate = fs.readFileSync(path.join(product, 'templates/optical.wxml'), 'utf8');

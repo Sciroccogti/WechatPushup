@@ -37,7 +37,7 @@ test('边拖边调不重开相机/不丢基准，松手只保存一次，不承�
   page.onUnload(); assert.equal(h.timers.size, 0);
 });
 
-test('训练中触屏/光学互斥、暂停保留次数、继续光学重新校准', () => {
+test('光学校准不接收触屏、暂停保留次数、继续光学重新校准', () => {
   const h = createRuntime(); const page = h.openPage('training', { exerciseId: 'push-up' });
   page.startCounting(); page.onTouchStart({ touches: [{}] }); page.onTouchEnd({ touches: [] });
   assert.equal(page.data.count, 1);

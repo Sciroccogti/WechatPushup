@@ -45,7 +45,7 @@ test('统一计数器互斥、防抖、长按、多触点、暂停和撤销', ()
   counter.touchEnd(0); assert.equal(counter.touchStart(1000, 2), false);
   counter.touchEnd(1); assert.equal(counter.touchStart(1200, 1), false);
   counter.touchEnd(0); assert.equal(counter.touchStart(1400, 1), true);
-  counter.start('optical'); assert.equal(counter.addCount('touch', 2100), false);
+  counter.start('optical'); assert.equal(counter.addCount('gyro', 2100), false);
   assert.equal(counter.addCount('optical', 2100), true);
   counter.pause(); assert.equal(counter.addCount('manual', 3000), false);
   counter.resume(); assert.equal(counter.addCount('manual', 3100), true);

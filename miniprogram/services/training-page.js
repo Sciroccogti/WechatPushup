@@ -1,4 +1,5 @@
-const { getExerciseViewById } = require('../utils/exercise-view');
+const { getExerciseViewById, getExerciseSelection } = require('../utils/exercise-view');
+const { nextTouchFeedback } = require('../utils/touch-feedback');
 const { durationLabel } = require('../utils/time');
 const { CounterManager } = require('../domain/counter/manager');
 const { TrainingStore } = require('./training-store');
@@ -9,6 +10,8 @@ const { withOpticalPage } = require('./optical-page');
 function createTrainingPage(surface) {
   return withOpticalPage({
     data: { exercise: null, count: 0, total: 0, selectedMode: 'touch', phase: 'idle', notice: '', blockedMessage: '',
+      exercises: [], exerciseNames: [], exerciseIndex: 0, sortOptions: ['累计训练时长', '最近使用'], sortIndex: 0,
+      feedbackColor: '#f5f7f4', touchRipples: [],
       purpose: 'free', groupNumber: 1, groupCount: 1, target: '—', targetDraft: '', restSeconds: 0,
       elapsed: '0秒', groupRows: [], gyroAxisIndex: 0, gyroAxes: ['胸前竖向（X轴）', '自动选轴'], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' } },
     onLoad(options) {
@@ -19,6 +22,7 @@ function createTrainingPage(surface) {
         signal: (signal) => {
           if (!this._visible) return;
           const at = Date.now();
+          if (signal.state === 'READY' && this._sensorTouchCycle === 'gyro') this._sensorTouchCycle = null;
           if (signal.state === 'READY' && this.data.phase === 'calibrating') this._startWork('gyro');
           if (signal.state === 'CALIBRATING' && this._session && this._session.state === 'working') this._pauseForCalibration('gyro');
           if (!this._gyroRenderAt || at - this._gyroRenderAt >= 200 || signal.counted) {
@@ -30,6 +34,7 @@ function createTrainingPage(surface) {
       });
       this.setData({ exercise });
       this._opticalAllowed = !!exercise && exercise.sensor === 'optical';
+      this._loadExerciseSelection();
       if (!exercise) return;
       this._prefs.markUsed(exercise.id);
       const initialMode = exercise.isTimed ? 'timer' : params.mode === exercise.sensor ? params.mode : 'touch';
@@ -50,25 +55,81 @@ function createTrainingPage(surface) {
       this._syncSession();
     },
     onShow() {
+      this.setData({ touchRipples: [], feedbackColor: this._lastFeedbackColor || this.data.feedbackColor });
+      this._loadExerciseSelection();
       if (!this._session) return;
       this._syncSession(); this._startTicker();
       if (this._autoStart) { this._autoStart = false; this.startCounting(); }
     },
     onHide() {
+      this._clearTouchFeedback(false);
       this._stopTicker();
       if (this._session) { if (!this._transfer) this._session.pause(Date.now()); this._stopSensors(); this._flushUsage(true); if (!this._transfer) this._syncSession(); }
     },
     onUnload() {
+      this._clearTouchFeedback(false);
       this._stopTicker(); this._stopSensors();
       if (this._session) {
         if (!this._transfer && this._session.state !== 'finished') {
           this._session.finish(Date.now(), true);
-          if (this._session.activeMs > 0 || this._session.groups.some((group) => group.actual > 0)) {
-            if (!this._trainingStore.finish(this._session.result(3))) wx.showToast({ title: '训练结果未能保存，请检查本地存储', icon: 'none' });
-          }
+          if (!this._saveCurrentResult()) wx.showToast({ title: '训练结果未能保存，请检查本地存储', icon: 'none' });
           clearSession(this._session.id);
         }
         this._flushUsage(true);
+      }
+    },
+    _loadExerciseSelection() {
+      const preferences = this._prefs.load();
+      this.setData(Object.assign(getExerciseSelection(preferences, this.data.exercise && this.data.exercise.id), { storageMessage: this._prefs.warning || this._trainingStore.warning }));
+    },
+    onSortChange(event) {
+      this._prefs.setSortMode(Number(event.detail.value) === 0 ? 'duration' : 'recent');
+      this.setData(Object.assign(getExerciseSelection(this._prefs.value, this.data.exercise && this.data.exercise.id), { storageMessage: this._prefs.warning }));
+    },
+    _saveCurrentResult() {
+      const result = this._session.result(3);
+      if (result.actual === 0 && (result.activeMs === 0 || result.purpose === 'assessment')) return true;
+      return this._trainingStore.finish(result);
+    },
+    onExerciseChange(event) {
+      if (this._transfer || ['running', 'calibrating'].includes(this.data.phase)) return;
+      const exercise = this.data.exercises[Number(event.detail.value)];
+      if (!exercise || (this.data.exercise && exercise.id === this.data.exercise.id && !this.data.blockedMessage)) return;
+      if (this._session) {
+        this._session.finish(Date.now(), true); this._stopSensors(); this._flushUsage(true);
+        if (!this._saveCurrentResult()) return this.setData({ notice: this._trainingStore.warning + ' 已结束当前训练；保存成功后再切换。' });
+        clearSession(this._session.id); this._session = null;
+      }
+      this._transfer = true; this._stopTicker(); this._clearTouchFeedback(false);
+      wx.redirectTo({ url: exercise.freeUrl, fail: () => {
+        if (!this._visible) return;
+        this._transfer = false;
+        this.setData({ blockedMessage: '切换失败，请在上方重新选择项目。' });
+      } });
+    },
+    _showTouchFeedback(event) {
+      if (!this._visible || surface !== 'training') return;
+      clearTimeout(this._colorTimer); clearTimeout(this._rippleTimer);
+      const feedback = nextTouchFeedback(event, this._lastFeedbackColor || this.data.feedbackColor);
+      this._lastFeedbackColor = feedback.color;
+      const id = (this._rippleSequence || 0) + 1; this._rippleSequence = id;
+      this.setData({ touchRipples: [Object.assign({ id }, feedback)] });
+      this._colorTimer = setTimeout(() => { if (this._visible && id === this._rippleSequence) this.setData({ feedbackColor: feedback.color }); }, 520);
+      this._rippleTimer = setTimeout(() => { if (this._visible && id === this._rippleSequence) this.setData({ touchRipples: [] }); }, 720);
+    },
+    _clearTouchFeedback(render) {
+      clearTimeout(this._colorTimer); clearTimeout(this._rippleTimer);
+      this._rippleSequence = (this._rippleSequence || 0) + 1; this._timerTouchHeld = false;
+      if (render && this._visible) this.setData({ touchRipples: [] });
+    },
+    ignoreControlTouch(event) {
+      // 控件不加数；仅记下真实视口坐标供“开始计时”按钮使用。
+      if (event && ['touchend', 'touchcancel'].includes(event.type)) {
+        this.onTouchEnd(event.type === 'touchcancel' ? { touches: [] } : event);
+        return;
+      }
+      if (event && event.touches && event.touches.length === 1) {
+        this._controlTouch = event.touches[0]; this._controlTouchAt = Date.now();
       }
     },
     _startTicker() {
@@ -90,6 +151,7 @@ function createTrainingPage(surface) {
     },
     _stopSensors() {
       this._preparingSensor = false;
+      this._sensorTouchCycle = null;
       this._releaseOptical(!this._visible);
       if (this._gyro) this._gyro.stop();
       this._counter.pause();
@@ -132,6 +194,7 @@ function createTrainingPage(surface) {
       const session = this._session;
       if (session.state !== 'working') session.start(Date.now(), mode);
       this._preparingSensor = false;
+      this._sensorTouchCycle = null;
       if (!session.modes.includes(mode)) session.modes.push(mode);
       session.lastMode = mode;
       if (!this.data.exercise.isTimed) {
@@ -140,15 +203,19 @@ function createTrainingPage(surface) {
       }
       this.setData({ selectedMode: mode, phase: 'running', notice: '' }); this._syncSession(); return true;
     },
-    startCounting() {
+    startCounting(event) {
       if (!this._canWork()) return;
       if (this.data.selectedMode === 'optical') return this.startOptical();
       if (this.data.selectedMode === 'gyro') return this.startGyro();
-      this._startWork(this.data.exercise.isTimed ? 'timer' : 'touch');
+      if (this._startWork(this.data.exercise.isTimed ? 'timer' : 'touch') && this.data.exercise.isTimed) {
+        const point = event && !event.touches && this._controlTouch && Date.now() - this._controlTouchAt < 1000 ? { touches: [this._controlTouch] } : event;
+        this._showTouchFeedback(point);
+      }
     },
     onOpticalStarting() { if (this._gyro) this._gyro.stop(); this._pauseForCalibration('optical'); },
     onOpticalStarted() { this.setData({ phase: 'calibrating' }); },
     onOpticalSignal(signal) {
+      if (signal.state === 'READY' && this._sensorTouchCycle === 'optical') this._sensorTouchCycle = null;
       if (signal.state === 'READY' && this.data.phase === 'calibrating') this._startWork('optical');
       if (signal.state === 'CALIBRATING' && this._session && this._session.state === 'working') this._pauseForCalibration('optical');
     },
@@ -177,29 +244,51 @@ function createTrainingPage(surface) {
     },
     pauseCounting() {
       if (!this._session) return;
+      this._clearTouchFeedback(true);
       this._session.pause(Date.now()); this._stopSensors(); this._flushUsage(true); this._syncSession();
     },
     endCounting() {
       if (!this._session || this._transfer) return;
       this._session.finish(Date.now(), this._session.purpose === 'plan'); this._stopSensors(); this._flushUsage(true); this._syncSession();
     },
-    finishGroup() { if (this._session && this._session.finishSet(Date.now(), false)) { this._stopSensors(); this._syncSession(); } },
+    finishGroup() {
+      if (!this._session) return;
+      if (this._session.state === 'paused' && this._session.pausedFrom === 'working') this._session.start(Date.now(), 'manual');
+      if (this._session.finishSet(Date.now(), false)) { this._stopSensors(); this._syncSession(); }
+    },
     skipGroup() {
       if (!this._session) return;
+      if (this._session.state === 'paused' && this._session.pausedFrom === 'working') this._session.start(Date.now(), 'manual');
       if (this._session.state === 'ready') this._session.start(Date.now(), 'manual');
       if (this._session.finishSet(Date.now(), true)) { this._stopSensors(); this._syncSession(); }
     },
     _acceptCount(source, at) {
+      if (source === this._sensorTouchCycle) { this._sensorTouchCycle = null; return; }
       if (!this._session || this._session.state !== 'working' || !this._counter.addCount(source, at)) return;
       if (this._session.add(at)) { if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ fail() {} }); this._syncSession(); }
     },
     onTouchStart(event) {
-      if (!this._session || this._session.state !== 'working') return;
+      if (!this._session || this._transfer || surface !== 'training') return;
+      if (this.data.exercise.isTimed) {
+        if (this._timerTouchHeld) return;
+        this._timerTouchHeld = true;
+        if (!event.touches || event.touches.length !== 1) return;
+        if (this._session.state === 'working') this._showTouchFeedback(event);
+        else if (['idle', 'paused'].includes(this._session.state)) this.startCounting(event);
+        return;
+      }
+      if (this._session.state !== 'working') return;
       if (this._counter.touchStart(Date.now(), event.touches ? event.touches.length : 0)) {
-        this._session.add(Date.now()); if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ fail() {} }); this._syncSession();
+        if (this.data.selectedMode === 'optical' && this._fsm && (['DARK', 'LIGHT'].includes(this._fsm.state) || this._fsm.darkAt !== null)) this._sensorTouchCycle = 'optical';
+        if (this.data.selectedMode === 'gyro' && this._gyro.fsm && ['OUT', 'BACK'].includes(this._gyro.fsm.state)) this._sensorTouchCycle = 'gyro';
+        this._session.add(Date.now());
+        if (!this._session.modes.includes('touch')) this._session.modes.push('touch');
+        this._showTouchFeedback(event);
+        if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ fail() {} }); this._syncSession();
       }
     },
-    onTouchEnd(event) { this._counter.touchEnd(event.touches ? event.touches.length : 0); },
+    onTouchEnd(event) { const remaining = event.touches ? event.touches.length : 0; this._counter.touchEnd(remaining); if (!remaining) this._timerTouchHeld = false; },
+    onTouchCancel() { this._counter.touchEnd(0); this._timerTouchHeld = false; },
     preventTouchMove() {},
     manualAdd() { this._acceptCount('manual', Date.now()); },
     undoCount() { if (this._session && this._session.undo(Date.now())) { this._counter.undoCount(); this._syncSession(); } },
