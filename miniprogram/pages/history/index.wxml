@@ -1,0 +1,4 @@
+<view class="page">
+  <empty-state heading="训练记录" description="训练记录功能正在准备中。" show-home="{{false}}" />
+  <navigator class="button button-secondary page-link" url="/pages/statistics/index" hover-class="button-hover">查看数据统计</navigator>
+</view>

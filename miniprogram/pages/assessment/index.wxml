@@ -1,0 +1,3 @@
+<view class="page">
+  <empty-state heading="初始能力测试" description="能力评估功能正在准备中。" />
+</view>

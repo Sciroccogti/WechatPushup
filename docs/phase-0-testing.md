@@ -43,8 +43,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\audit-wechat-a
 
 ## 2. 微信开发者工具导入与编译
 
-1. 打开当前稳定版微信开发者工具，微信扫码登录。选择导入“小程序”，项目路径为 `D:\Codes\WechatPushup`；不选择小游戏、插件或云开发模板。
-2. 工具读取根目录 `project.config.json`。确认小程序根目录为 `experiments/optical-demo/`，不是仓库根目录，不把 tests/docs 当作运行代码。
+1. 打开当前稳定版微信开发者工具，微信扫码登录。选择导入“小程序”，项目路径为 `D:\Codes\WechatPushup\experiments\optical-demo`；不选择小游戏、插件或云开发模板。阶段 1 后，仓库根目录用于正式工程。
+2. 工具读取实验目录自己的 `project.config.json`，其 `miniprogramRoot` 为 `./`，对应包含 app.json 的实验目录；不把 tests/docs 当作运行代码。
 3. 无 AppID 可先用现有 `touristappid` 进行本地编译与模拟；真机预览使用自己的小程序 AppID，并将扫码微信设为开发者/有相应权限的成员。测试号/游客模式的能力不能替代真实 AppID 权限与隐私配置。
 4. 在工具本地设置选择稳定基础库 ≥ 2.32.3，保持 ES6 编译开启。无需 npm 构建，不需要配置服务器、云环境或关闭合法域名校验。
 5. 点击编译。应出现单页“光学计数实验室”，默认不显示 camera 实时预览。记录开发者工具版本、所选基础库及编译是否成功。
@@ -63,7 +63,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\audit-wechat-a
 
 ## 4. 手机预览前配置
 
-1. 将 `project.config.json` 的 `appid` 改为自己的小程序 AppID，确认工具登录的微信和手机微信具有相应开发权限。
+1. 将 `experiments/optical-demo/project.config.json` 的 `appid` 改为自己的小程序 AppID（可使用正式工程已配置的 AppID），确认工具登录的微信和手机微信具有相应开发权限。
 2. 在[微信公众平台](https://mp.weixin.qq.com/)小程序管理后台，找到用户隐私保护指引配置，填写与真实行为一致的相机用途：用户主动开启后，画面仅在设备内存中提取亮度以验证遮挡计数；不拍照、录像、保存或上传画面。后台入口名称可能随版本调整，以当前控制台为准。
 3. 本 Demo 实现了隐私同意按钮及 `scope.camera` 授权，不申请登录、麦克风或相册；后台隐私声明与硬件授权是不同环节，不能只改 app.json 就认为配置完成。
 4. 点击开发者工具“预览”，手机微信扫码。必要时用真机调试查看控制台，但最终也要在普通预览状态重测，避免调试开销影响采样。
@@ -127,4 +127,4 @@ Android 和 iPhone **分别**执行以下步骤，填写 [validation-results.md]
 诊断JSON或首条控制台错误：
 ```
 
-本阶段到此为止。收到用户确认的 Demo 结果后，再决定正式产品的光学路径与后续阶段。
+光学实验到此为止。用户已另行授权阶段 1 工程骨架；正式产品是否启用光学路径仍须依据用户确认的真机结果。

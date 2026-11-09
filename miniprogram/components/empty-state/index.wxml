@@ -1,0 +1,6 @@
+<view class="empty-state">
+  <view class="status-mark" aria-hidden="true">· · ·</view>
+  <view class="heading">{{heading}}</view>
+  <view class="description">{{description}}</view>
+  <navigator wx:if="{{showHome}}" class="home-link" url="/pages/home/index" open-type="switchTab" hover-class="link-hover">回到首页</navigator>
+</view>

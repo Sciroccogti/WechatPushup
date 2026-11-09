@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/exercises/index",
+    "pages/assessment/index",
+    "pages/plan/index",
+    "pages/count-mode/index",
+    "pages/calibration/index",
+    "pages/training/index",
+    "pages/rest/index",
+    "pages/summary/index",
+    "pages/history/index",
+    "pages/statistics/index",
+    "pages/settings/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "随身健身教练",
+    "navigationBarBackgroundColor": "#f5f7f4",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f7f4",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#66776c",
+    "selectedColor": "#285d3e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "训练"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "设置"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

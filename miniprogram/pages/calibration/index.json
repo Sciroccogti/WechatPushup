@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "光学校准",
+  "usingComponents": {
+    "empty-state": "/components/empty-state/index"
+  }
+}

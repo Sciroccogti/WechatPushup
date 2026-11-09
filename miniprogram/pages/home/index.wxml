@@ -1,0 +1,11 @@
+<view class="page">
+  <view class="brand">{{appName}}</view>
+  <view class="hero">从适合自己的<text class="hero-line">节奏开始。</text></view>
+  <view class="muted intro">专注每一次训练，慢慢积累自己的进步。</view>
+  <view class="card welcome-card">
+    <view class="card-title">准备好，迎接下一次训练</view>
+    <view class="muted card-description">训练功能准备中，你的训练旅程将从这里开始。</view>
+    <navigator class="button button-primary start-link" url="/pages/exercises/index" hover-class="button-hover">查看运动项目</navigator>
+  </view>
+  <navigator class="record-link" url="/pages/history/index" open-type="switchTab" hover-class="button-hover">查看训练记录 <text aria-hidden="true">›</text></navigator>
+</view>

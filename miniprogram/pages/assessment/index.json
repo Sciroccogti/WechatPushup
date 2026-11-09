@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "初始能力测试",
+  "usingComponents": {
+    "empty-state": "/components/empty-state/index"
+  }
+}

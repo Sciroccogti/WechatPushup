@@ -1,8 +1,8 @@
 {
-  "name": "wechat-fitness-optical-experiment",
-  "version": "0.0.1",
+  "name": "wechat-fitness-coach",
+  "version": "0.1.0",
   "private": true,
-  "description": "阶段 0：微信原生小程序光学计数实验，硬件待真机验证",
+  "description": "随身健身教练：原生微信小程序与独立光学实验",
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check.js",

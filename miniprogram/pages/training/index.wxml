@@ -1,0 +1,3 @@
+<view class="page">
+  <empty-state heading="训练执行" description="训练功能正在准备中。" />
+</view>

@@ -1,0 +1,3 @@
+<view class="page">
+  <empty-state heading="组间休息" description="组间休息功能正在准备中。" />
+</view>
