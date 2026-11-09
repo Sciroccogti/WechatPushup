@@ -1,10 +1,10 @@
 <view class="page">
   <view class="page-heading">今天，专注一项运动</view>
-  <view class="muted page-description">按最近使用排序，选择想练的项目。</view>
+  <picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="sort-picker">排序：{{sortOptions[sortIndex]}} ▾</view></picker>
   <view class="exercise-section">
     <navigator wx:for="{{exercises}}" wx:key="id" class="exercise-row" url="{{item.trainingUrl}}" open-type="redirect" hover-class="button-hover">
       <view class="exercise-mark">{{item.number}}</view>
-      <view class="exercise-info"><view class="exercise-name">{{item.name}}</view><view class="exercise-description">{{item.description}}</view></view>
+      <view class="exercise-info"><view class="exercise-name">{{item.name}}</view><view class="exercise-description">{{item.description}}</view><view class="exercise-description">{{item.usageLabel}}</view></view>
       <view class="exercise-trailing"><text class="type-tag {{item.isTimed ? 'type-timed' : ''}}">{{item.unit}}</text><text class="arrow" aria-hidden="true">›</text></view>
     </navigator>
   </view>

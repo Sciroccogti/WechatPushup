@@ -95,7 +95,7 @@ function checkApp(appRoot, projectFile) {
       if (!['.js', '.json'].some((ext) => fs.existsSync(dependency + ext))) throw new Error('Missing module: ' + dependency);
     }
     if (/\bwx\.(request|uploadFile|connectSocket|login|createCamera|startLightSensor|onLightSensorChange)\s*\(/.test(source) || /\.(takePhoto|startRecord)\s*\(/.test(source)) throw new Error('Unexpected network/capture API: ' + file);
-    if (/\.(getStorageSync|setStorageSync)\s*\(/.test(source) && file !== path.join(product, 'services/preferences.js')) throw new Error('Storage must go through preferences service: ' + file);
+    if (/\.(getStorageSync|setStorageSync)\s*\(/.test(source) && file !== path.join(product, 'services/storage/local-document.js')) throw new Error('Storage must go through local document adapter: ' + file);
   });
   return app.pages.length;
 }

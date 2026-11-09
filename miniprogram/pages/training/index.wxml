@@ -1,39 +1,39 @@
 <import src="../../templates/optical.wxml" />
 <view class="page">
-  <block wx:if="{{exercise}}">
-    <view class="training-heading">
-      <view><view class="eyebrow">自由训练</view><view class="exercise-title">{{exercise.name}}</view></view>
-      <navigator class="change-link" url="/pages/exercises/index" open-type="redirect" hover-class="button-hover">更换项目</navigator>
-    </view>
-    <view class="muted exercise-description">{{exercise.description}}</view>
+  <block wx:if="{{exercise && !blockedMessage}}">
+    <view class="training-heading"><view><view class="eyebrow">{{purpose === 'plan' ? '五组计划' : purpose === 'assessment' ? '能力测试' : '自由训练'}}</view><view class="exercise-title">{{exercise.name}}</view></view></view>
     <view class="counter-preview">
-      <view class="preview-heading"><text>{{exercise.isTimed ? exercise.currentLabel : '本次次数'}}</text><text class="status-pill">{{phase === 'running' ? '计数中' : phase === 'calibrating' ? '授权 / 校准中' : phase === 'paused' ? '已暂停' : phase === 'ended' ? '已结束' : '尚未开始'}}</text></view>
-      <view class="counter-value">{{exercise.isTimed ? '—' : count}}<text class="counter-unit">{{exercise.unit}}</text></view>
-      <view class="counter-caption">{{exercise.isTimed ? '计时功能准备中' : selectedMode === 'optical' ? '光学明暗周期计数 · 实验功能' : '触屏计数'}}</view>
-      <view class="preview-divider"></view>
-      <view class="preview-summary"><text>个人计划</text><text>尚未设置</text></view>
+      <view class="preview-heading"><text>第 {{groupNumber}} / {{groupCount}} 组</text><text class="status-pill">{{phase === 'running' ? '训练中' : phase === 'calibrating' ? '设备校准中' : phase === 'paused' ? '已暂停' : phase === 'rest' ? '休息中' : phase === 'ready' ? '准备下一组' : phase === 'finished' ? '已结束' : '尚未开始'}}</text></view>
+      <view class="counter-value">{{count}}<text class="counter-unit">{{exercise.unit}}</text></view>
+      <view class="counter-caption">本组目标 {{target}} {{exercise.unit}}</view>
+      <view class="preview-divider"></view><view class="preview-summary"><text>累计 {{total}} {{exercise.unit}}</text><text>训练 {{elapsed}}</text></view>
     </view>
-
-    <view wx:if="{{!exercise.isTimed}}">
-      <view class="card detail-card">
+    <view class="card detail-card">
+      <view wx:if="{{exercise.isTimed}}" class="section-title">计时器 · 无需传感器</view>
+      <block wx:else>
         <view class="section-title">计数方式</view>
-        <view class="opt-row"><button class="opt-button {{selectedMode === 'touch' ? 'opt-primary' : ''}}" bindtap="selectTouch">触屏</button><button class="opt-button {{selectedMode === 'optical' ? 'opt-primary' : ''}}" bindtap="startOptical">开启光学</button></view>
-        <navigator class="opt-button tuning-link" url="/pages/calibration/index">光学阈值与实时测试 ›</navigator>
-      </view>
-      <template wx:if="{{selectedMode === 'optical'}}" is="optical-panel" data="{{...optical}}" />
-      <view wx:if="{{selectedMode === 'touch'}}" class="touch-counter" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd" catchtouchcancel="onTouchEnd" catchtouchmove="preventTouchMove">{{phase === 'running' ? '轻触这里 +1' : '开始或继续后轻触计数'}}<view class="touch-note">每次触碰只计一次 · 最小间隔 600 ms</view></view>
-      <view class="opt-row"><button class="opt-button" bindtap="manualAdd" disabled="{{phase !== 'running'}}">手动 +1</button><button class="opt-button" bindtap="undoCount">撤销 −1</button><button class="opt-button" bindtap="resetCount">清零</button></view>
-      <view class="opt-row"><button class="opt-button opt-primary" bindtap="startCounting" disabled="{{phase === 'running' || phase === 'calibrating'}}">{{phase === 'paused' ? '继续计数' : '开始计数'}}</button><button class="opt-button" bindtap="pauseCounting" disabled="{{phase !== 'running' && phase !== 'calibrating'}}">暂停</button><button class="opt-button" bindtap="endCounting">结束</button></view>
-      <view class="muted footer-description">当前为自由计数，不生成五组计划、不保存训练记录。光学仅检测亮度周期，不判断动作是否标准。</view>
+        <view class="opt-row"><button class="opt-button {{selectedMode === 'touch' ? 'opt-primary' : ''}}" bindtap="selectTouch">触屏</button><button wx:if="{{exercise.sensor === 'optical'}}" class="opt-button" bindtap="startOptical" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">开启光学</button><button wx:if="{{exercise.sensor === 'gyro'}}" class="opt-button" bindtap="startGyro" disabled="{{phase === 'rest' || phase === 'ready' || phase === 'finished'}}">开启陀螺仪</button></view>
+        <navigator wx:if="{{exercise.sensor === 'optical'}}" class="opt-button tuning-link" url="/pages/calibration/index">俯卧撑光学阈值与实时测试 ›</navigator>
+        <view wx:if="{{exercise.sensor === 'gyro'}}">
+          <view class="muted spaced">手机竖向稳定固定在胸前或上身，先静止约1.2秒。只检测手机往返转动；上身角度变化小可能漏计，待真机验证。</view>
+          <picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker>
+          <view wx:if="{{selectedMode === 'gyro'}}" class="muted spaced">{{gyro.state}} · X {{gyro.x}} / Y {{gyro.y}} / Z {{gyro.z}} · 积分 {{gyro.angle}}</view>
+        </view>
+      </block>
     </view>
-    <view wx:else class="muted footer-description">平板支撑计时功能准备中，无需摄像头。</view>
-    <view wx:if="{{notice}}" class="opt-warning">{{notice}}</view>
-    <view wx:if="{{storageMessage}}" class="opt-warning">{{storageMessage}}</view>
+    <template wx:if="{{exercise.sensor === 'optical' && selectedMode === 'optical'}}" is="optical-panel" data="{{...optical}}" />
+    <view wx:if="{{!exercise.isTimed && selectedMode === 'touch'}}" class="touch-counter" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd" catchtouchcancel="onTouchEnd" catchtouchmove="preventTouchMove">{{phase === 'running' ? '轻触这里 +1' : '开始后轻触计数'}}<view class="touch-note">长按不连加 · 最小间隔600 ms</view></view>
+    <view wx:if="{{!exercise.isTimed}}" class="opt-row"><button class="opt-button" bindtap="manualAdd" disabled="{{phase !== 'running'}}">手动 +1</button><button class="opt-button" bindtap="undoCount" disabled="{{phase !== 'running'}}">撤销 −1</button><button class="opt-button" bindtap="resetCount" disabled="{{phase !== 'running'}}">本组清零</button></view>
+    <view class="opt-row"><button class="opt-button opt-primary" bindtap="startCounting" disabled="{{phase === 'running' || phase === 'calibrating' || phase === 'rest' || phase === 'ready' || phase === 'finished'}}">{{phase === 'paused' ? '继续训练' : '开始训练'}}</button><button class="opt-button" bindtap="pauseCounting" disabled="{{phase !== 'running' && phase !== 'calibrating'}}">暂停</button><button class="opt-button" bindtap="endCounting">结束本次</button></view>
+    <view wx:if="{{purpose === 'plan'}}" class="card detail-card">
+      <view class="section-title">本组操作</view>
+      <view class="opt-row"><button class="opt-button" bindtap="finishGroup" disabled="{{phase !== 'running'}}">提前完成本组</button><button class="opt-button" bindtap="skipGroup" disabled="{{phase !== 'running' && phase !== 'idle'}}">跳过本组</button></view>
+      <input class="field-input" type="number" value="{{targetDraft}}" bindinput="onTargetInput" placeholder="调整当前组目标" /><button class="opt-button" bindtap="applyTarget">应用目标</button>
+    </view>
+    <view wx:if="{{phase === 'rest' || phase === 'ready'}}" class="card detail-card"><view>休息 {{restSeconds}} 秒</view><button class="opt-button" bindtap="nextGroup">开始下一组</button></view>
+    <view wx:if="{{purpose === 'assessment'}}" class="muted spaced">完成当前有效最大次数/秒数后点击“结束本次”，总结页确认后更新能力值。不适时立即停止。</view>
+    <view wx:if="{{notice || storageMessage}}" class="opt-warning">{{notice}} {{storageMessage}}</view>
     <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
   </block>
-  <block wx:else>
-    <empty-state heading="请先选择运动项目" description="此入口没有有效的运动项目，请重新选择。" show-home="{{false}}" />
-    <navigator class="button button-primary select-link" url="/pages/exercises/index" open-type="redirect" hover-class="button-hover">选择运动项目</navigator>
-    <navigator class="button home-link" url="/pages/home/index" open-type="switchTab" hover-class="button-hover">回到首页</navigator>
-  </block>
+  <block wx:else><empty-state heading="{{blockedMessage || '请先选择运动项目'}}" /><navigator class="button button-primary spaced" url="/pages/exercises/index" open-type="redirect">选择项目 / 返回计划</navigator></block>
 </view>

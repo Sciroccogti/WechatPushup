@@ -1,3 +1,13 @@
 <view class="page">
-  <empty-state heading="组间休息" description="组间休息功能正在准备中。" />
+  <block wx:if="{{exercise && !blockedMessage}}">
+    <view class="page-title">{{exercise.name}} · 组间恢复</view>
+    <view class="counter-preview"><view class="preview-heading">第{{groupNumber}}组已结束</view><view class="counter-value">{{phase === 'ready' ? '就绪' : restSeconds}}<text class="counter-unit">{{phase === 'ready' ? '' : '秒'}}</text></view><view class="counter-caption">{{phase === 'paused' ? '休息已暂停' : phase === 'ready' ? '休息结束，点击开始下一组' : '放松呼吸，准备下一组'}}</view></view>
+    <view class="opt-row"><button class="opt-button" bindtap="endRest" disabled="{{phase !== 'rest'}}">提前结束休息</button><button class="opt-button" bindtap="extendRest" disabled="{{phase !== 'rest'}}">延长30秒</button></view>
+    <button wx:if="{{phase === 'paused'}}" class="button button-primary spaced" bindtap="resumeRest">继续休息</button>
+    <button wx:else class="button button-primary spaced" bindtap="nextGroup">{{phase === 'ready' ? '开始下一组' : '提前开始下一组'}}</button>
+    <view class="opt-row"><button class="opt-button" bindtap="pauseCounting" disabled="{{phase === 'paused'}}">暂停</button><button class="opt-button" bindtap="endCounting">结束本次</button></view>
+    <view class="card spaced"><view class="section-title">本次进度</view><view wx:for="{{groupRows}}" wx:key="number" class="plan-row"><text>第{{item.number}}组</text><text>{{item.actual}} / {{item.target}} {{exercise.unit}}</text><text>{{item.status}}</text></view><button class="opt-button" bindtap="correctPrevious">撤销上一组误计 −1</button></view>
+    <view wx:if="{{notice || storageMessage}}" class="opt-warning">{{notice}} {{storageMessage}}</view>
+  </block>
+  <block wx:else><empty-state heading="{{blockedMessage || '没有进行中的训练'}}" /></block>
 </view>

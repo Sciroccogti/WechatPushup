@@ -1,3 +1,19 @@
 <view class="page">
-  <empty-state heading="长期训练计划" description="个人训练计划功能正在准备中。" />
+  <block wx:if="{{exercise && plan}}">
+    <view class="page-title">{{exercise.name}} · 长期计划</view>
+    <view wx:if="{{resumeUrl}}" class="card spaced"><navigator class="button button-primary" url="{{resumeUrl}}" open-type="redirect">返回未结束训练</navigator></view>
+    <view class="card spaced">
+      <view class="section-title">{{plan.needsAssessment ? '先了解自己的起点' : plan.recovery ? '今天先恢复' : plan.deload ? '本次减量训练' : '本次五组目标'}}</view>
+      <view wx:for="{{plan.reasons}}" wx:key="*this" class="muted spaced">{{item}}</view>
+      <view wx:if="{{plan.recovery}}" class="spaced">下次建议：{{nextTime}}</view>
+      <view wx:for="{{plan.groups}}" wx:key="index" class="plan-row"><text>第 {{index + 1}} 组</text><text>{{item.target}} {{exercise.unit}}</text><text class="muted">{{item.restSeconds ? '休息 ' + item.restSeconds + ' 秒' : '末组按目标完成'}}</text></view>
+      <view wx:if="{{!plan.needsAssessment}}" class="muted spaced">合计 {{plan.total}} {{exercise.unit}}。目标可在组内调整，不要求练到力竭。</view>
+      <navigator wx:if="{{!plan.needsAssessment && !plan.recovery && !resumeUrl}}" class="button button-primary spaced" url="{{startUrl}}" open-type="redirect">选择方式并开始计划</navigator>
+      <navigator class="button button-secondary spaced" url="{{assessmentUrl}}" open-type="redirect">{{plan.needsAssessment ? '初始能力评估' : plan.reassessDue ? '重新评估能力（建议）' : '修改 / 重新评估能力'}}</navigator>
+      <navigator wx:if="{{!resumeUrl}}" class="button button-secondary spaced" url="{{freeUrl}}" open-type="redirect">{{plan.recovery ? '查看自由训练（恢复期不建议高强度）' : '自由训练'}}</navigator>
+    </view>
+    <view wx:if="{{message}}" class="opt-warning">{{message}}</view>
+    <navigator class="button home-link" url="/pages/home/index" open-type="switchTab">回到首页</navigator>
+  </block>
+  <empty-state wx:else heading="请先选择运动项目" />
 </view>

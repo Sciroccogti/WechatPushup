@@ -1,11 +1,12 @@
 {
   "name": "wechat-fitness-coach",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "随身健身教练：原生微信小程序与独立光学实验",
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check.js",
+    "simulate": "node scripts/simulate-training.js",
     "check:wechat": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check-wechat.ps1"
   },
   "engines": { "node": ">=20" }

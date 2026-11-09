@@ -92,6 +92,7 @@ function withOpticalPage(definition) {
     },
     startOptical() {
       if (!this._visible || this._opticalAllowed === false) return;
+      if (typeof this.canStartOptical === 'function' && !this.canStartOptical()) return;
       this._releaseOptical(false);
       if (definition.onOpticalStarting) definition.onOpticalStarting.call(this);
       const capability = inspectCapabilities(wx);
@@ -185,9 +186,13 @@ function withOpticalPage(definition) {
     },
     _ingestOptical(value, at) {
       const result = this._fsm.feed(value, at);
+      const token = this._opticalEpoch;
+      if (definition.onOpticalSignal) definition.onOpticalSignal.call(this, result, at);
+      if (!this._validOptical(token)) return;
       if (result.counted) {
         this.setData({ 'optical.testCount': this.data.optical.testCount + 1 });
         if (definition.onOpticalCount) definition.onOpticalCount.call(this, at);
+        if (!this._validOptical(token)) return;
       }
       if (result.counted || at - this._lastRenderAt >= 200 || result.state !== this.data.optical.state) {
         this._lastRenderAt = at;

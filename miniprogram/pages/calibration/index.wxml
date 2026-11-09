@@ -1,2 +1,2 @@
-<import src="../../templates/optical.wxml" />
-<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version}}" /></view>
+<import src="../../templates/optical-settings.wxml" />
+<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version, sortOptions, sortIndex}}" /></view>

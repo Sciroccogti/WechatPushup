@@ -6,6 +6,7 @@ Page({
   data: { appName: APP_INFO.name, exercises: getExerciseViews() },
   onShow() {
     const store = new PreferencesStore(wx);
-    this.setData({ exercises: getExerciseViews(store.load().recentExerciseIds) });
+    const prefs = store.load();
+    this.setData({ exercises: getExerciseViews(prefs.recentExerciseIds, prefs.usageMs, prefs.sortMode), sortLabel: prefs.sortMode === 'duration' ? '累计训练时长优先' : '最近使用优先' });
   }
 });

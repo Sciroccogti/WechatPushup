@@ -1,0 +1,26 @@
+<import src="./optical.wxml" />
+<template name="optical-settings">
+  <view class="opt-page-title">设置与光学测试</view>
+  <picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="field-input">项目排序：{{sortOptions[sortIndex]}} ▾</view></picker>
+  <view class="opt-hint">累计时长只计算实际训练；暂停、休息、校准和后台不计入。以下相机设置只用于俯卧撑。</view>
+  <view class="opt-hint">边测试边调节，参数只保存在本机。离开页面会停止采集；返回后需重新开启与校准。</view>
+  <view class="opt-live-strip">
+    <view class="opt-live-values"><text>亮度 {{optical.filtered}}</text><text>相对 {{optical.ratio}}</text><text>测试 {{optical.testCount}} 次</text></view>
+    <view class="opt-hint">暗 ≤ {{optical.darkPercent}}% / 亮 ≥ {{optical.lightPercent}}% · {{optical.state}}</view>
+  </view>
+  <template is="optical-panel" data="{{...optical}}" />
+  <view class="opt-panel">
+    <view class="opt-title">计数阈值与节奏</view>
+    <view class="opt-hint">百分比相对于校准亮度；低于遮挡阈值并稳定恢复后计一次。两个阈值始终保留至少 5% 间距。</view>
+    <view wx:for="{{sliders}}" wx:key="key" class="opt-slider">
+      <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.value}} {{item.unit}}</text></view>
+      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#285d3e" bindchanging="onSettingChanging" bindchange="onSettingChange" />
+    </view>
+    <view class="opt-hint">拖动立即应用，松手保存；基准保留，未完成的半个周期会清除。改变环境光后请重新校准。默认参数仅为实验起点。</view>
+    <button class="opt-button" bindtap="resetOpticalSettings">恢复默认参数</button>
+  </view>
+  <view wx:if="{{storageMessage}}" class="opt-warning">{{storageMessage}}</view>
+  <view class="opt-hint">{{optical.device}}</view>
+  <view class="opt-hint">{{appName}} · v{{version}}</view>
+  <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
+</template>

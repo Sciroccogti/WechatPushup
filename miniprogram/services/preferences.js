@@ -1,47 +1,46 @@
 const { DEFAULT_OPTICAL, isValidOptical } = require('../config/optical');
 const { EXERCISES } = require('../config/exercises');
+const { LocalDocument } = require('./storage/local-document');
 const KEY = 'fitness.preferences.v1';
-const copy = (value) => JSON.parse(JSON.stringify(value));
+const ids = EXERCISES.map((item) => item.id);
 const pickOptical = (value) => Object.keys(DEFAULT_OPTICAL).reduce((result, key) => { result[key] = value[key]; return result; }, {});
-const fresh = () => ({ schemaVersion: 1, optical: Object.assign({}, DEFAULT_OPTICAL), recentExerciseIds: [] });
-
-class PreferencesStore {
-  constructor(api) { this.api = api; this.value = fresh(); this.warning = ''; this.locked = false; }
-  load() {
-    this.warning = '';
-    this.locked = false;
-    try {
-      const stored = this.api.getStorageSync(KEY);
-      if (stored === '' || stored === undefined) this.value = fresh();
-      else if (!stored || stored.schemaVersion !== 1 || !isValidOptical(stored.optical) || !Array.isArray(stored.recentExerciseIds) ||
-        stored.recentExerciseIds.some((id) => typeof id !== 'string')) {
-        this.locked = true;
-        this.warning = '本地配置版本或内容无法识别，暂用默认值；不会覆盖原数据。';
-        this.value = fresh();
-      } else {
-        this.value = { schemaVersion: 1, optical: pickOptical(stored.optical), recentExerciseIds: [...new Set(stored.recentExerciseIds)].filter((id) => EXERCISES.some((e) => e.id === id)) };
-      }
-    } catch (_) {
-      this.locked = true;
-      this.warning = '读取本地配置失败，当前修改仅在此页面临时生效。';
+const fresh = () => ({ schemaVersion: 2, optical: { ...DEFAULT_OPTICAL }, recentExerciseIds: [], usageMs: {}, sortMode: 'duration' });
+function parse(value) {
+  if (!value || ![1, 2].includes(value.schemaVersion) || !isValidOptical(value.optical) || !Array.isArray(value.recentExerciseIds) || value.recentExerciseIds.some((id) => typeof id !== 'string')) throw new Error('INVALID_PREFERENCES');
+  const next = fresh(); next.optical = pickOptical(value.optical);
+  next.recentExerciseIds = [...new Set(value.recentExerciseIds)].filter((id) => ids.includes(id));
+  if (value.schemaVersion === 2) {
+    if (!['recent', 'duration'].includes(value.sortMode) || !value.usageMs || typeof value.usageMs !== 'object' || Array.isArray(value.usageMs)) throw new Error('INVALID_PREFERENCES');
+    next.sortMode = value.sortMode;
+    for (const id of ids) {
+      const time = value.usageMs[id] === undefined ? 0 : value.usageMs[id];
+      if (!Number.isSafeInteger(time) || time < 0) throw new Error('INVALID_USAGE');
+      next.usageMs[id] = time;
     }
-    return copy(this.value);
   }
-  _save() {
-    if (this.locked) return false;
-    try { this.api.setStorageSync(KEY, copy(this.value)); this.warning = ''; return true; }
-    catch (_) { this.warning = '保存失败，当前修改仅在此页面临时生效，请检查本地存储。'; return false; }
-  }
+  return next;
+}
+class PreferencesStore {
+  constructor(api) { this.document = new LocalDocument(api, KEY, fresh, parse); }
+  get value() { return this.document.value; }
+  get warning() { return this.document.warning; }
+  get locked() { return this.document.locked; }
+  load() { return this.document.load(); }
   saveOptical(settings) {
     if (!isValidOptical(settings)) throw new Error('INVALID_OPTICAL_SETTINGS');
-    this.value.optical = pickOptical(settings);
-    return this._save();
+    return this.document.update((value) => { value.optical = pickOptical(settings); });
   }
   markUsed(id) {
-    if (!EXERCISES.some((item) => item.id === id)) return false;
-    this.value.recentExerciseIds = [id, ...this.value.recentExerciseIds.filter((item) => item !== id)];
-    return this._save();
+    if (!ids.includes(id)) return false;
+    return this.document.update((value) => { value.recentExerciseIds = [id, ...value.recentExerciseIds.filter((item) => item !== id)]; });
+  }
+  addUsage(id, delta) {
+    if (!ids.includes(id) || !Number.isSafeInteger(delta) || delta <= 0) return false;
+    return this.document.update((value) => { value.usageMs[id] = Math.min(Number.MAX_SAFE_INTEGER, (value.usageMs[id] || 0) + delta); });
+  }
+  setSortMode(mode) {
+    if (!['recent', 'duration'].includes(mode)) return false;
+    return this.document.update((value) => { value.sortMode = mode; });
   }
 }
-
 module.exports = { PreferencesStore, PREFERENCES_KEY: KEY };

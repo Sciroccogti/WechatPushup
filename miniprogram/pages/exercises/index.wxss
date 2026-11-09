@@ -1,5 +1,6 @@
 .page-heading { font-size: 46rpx; line-height: 1.4; font-weight: 700; }
 .page-description { margin-top: 18rpx; }
+.sort-picker { margin-top: 20rpx; padding: 22rpx; background: #eaf0e6; border-radius: 16rpx; font-size: 27rpx; }
 .exercise-section { margin-top: 40rpx; }
 .exercise-row { display: flex; align-items: center; padding: 28rpx 24rpx; margin-top: 16rpx; min-height: 136rpx; background: #fff; border: 1rpx solid #e3e9e1; border-radius: 24rpx; }
 .exercise-mark { width: 72rpx; height: 72rpx; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #eaf0e6; border-radius: 20rpx; font-size: 27rpx; font-weight: 600; color: #456a50; }

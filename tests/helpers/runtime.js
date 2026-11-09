@@ -12,7 +12,10 @@ function createRuntime(options = {}) {
   const starts = [];
   const viewCallbacks = [];
   const privacyRequests = [];
-  const calls = { camera: 0, stop: 0, writes: 0, privacy: 0 };
+  const redirects = [];
+  const gyroListeners = new Set();
+  const gyroStarts = [];
+  const calls = { camera: 0, stop: 0, writes: 0, privacy: 0, gyroStart: 0, gyroStop: 0 };
   let now = 100000;
   let timerId = 0;
   let capturedPage;
@@ -51,10 +54,14 @@ function createRuntime(options = {}) {
         };
       } };
     },
+    redirectTo(callbacks) { redirects.push(callbacks.url); if (options.redirectFails && callbacks.fail) callbacks.fail(); },
+    onGyroscopeChange(fn) { gyroListeners.add(fn); }, offGyroscopeChange(fn) { gyroListeners.delete(fn); },
+    startGyroscope(callbacks) { calls.gyroStart += 1; gyroStarts.push(callbacks); if (options.gyroFails) callbacks.fail(); else if (!options.delayGyro) callbacks.success(); },
+    stopGyroscope() { calls.gyroStop += 1; },
     openSetting() {}, openPrivacyContract() {}, showToast() {}, vibrateShort() {}
   };
   const sandbox = {
-    wx, Date: { now: () => now }, ArrayBuffer, Uint8Array,
+    wx, Date: class extends Date { constructor(...args) { super(...(args.length ? args : [now])); } static now() { return now; } }, ArrayBuffer, Uint8Array,
     setTimeout: (fn, delay) => schedule(fn, delay, false),
     setInterval: (fn, delay) => schedule(fn, delay, true),
     clearTimeout: (id) => timers.delete(id), clearInterval: (id) => timers.delete(id),
@@ -90,7 +97,8 @@ function createRuntime(options = {}) {
     return page;
   }
   return {
-    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage,
+    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage, redirects, gyroListeners, gyroStarts,
+    now() { return now; },
     loadPage,
     openPage(name, params) { const page = loadPage(name); if (page.onLoad) page.onLoad(params); if (page.onShow) page.onShow(); return page; },
     launchApp() { loadModule(path.join(root, 'app.js'), true); capturedApp.onLaunch(); },
@@ -104,6 +112,12 @@ function createRuntime(options = {}) {
         item.fn();
       }
       now = end;
+    },
+    gyro(raw) { for (const listener of [...gyroListeners]) listener(raw); },
+    followRedirect(previous) {
+      const url = new URL(redirects.at(-1), 'https://local.invalid');
+      if (previous.onHide) previous.onHide(); if (previous.onUnload) previous.onUnload();
+      return this.openPage(url.pathname.split('/')[2], Object.fromEntries(url.searchParams));
     },
     emit(value) { frames.at(-1)({ width: 1, height: 1, data: Uint8Array.from([value, value, value, 255]).buffer }); },
     hold(value, duration) { for (let at = 0; at < duration; at += 100) { this.emit(value); this.advance(100); } }

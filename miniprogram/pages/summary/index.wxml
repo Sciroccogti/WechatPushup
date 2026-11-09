@@ -1,3 +1,21 @@
 <view class="page">
-  <empty-state heading="训练总结" description="训练总结功能正在准备中。" />
+  <block wx:if="{{result && exercise}}">
+    <view class="page-title">{{exercise.name}} · 本次总结</view>
+    <view class="card spaced">
+      <view class="section-title">完成 {{result.actual}} {{exercise.unit}}</view>
+      <view class="muted spaced">实际训练 {{elapsed}} · {{result.aborted ? '提前结束' : '已结束'}}</view>
+      <view wx:if="{{result.purpose === 'plan'}}" class="muted spaced">目标 {{result.planned}} {{exercise.unit}} · 完成率 {{completionLabel}}</view>
+      <view wx:for="{{result.groups}}" wx:key="index" class="plan-row"><text>第{{index + 1}}组</text><text>{{item.actual}} / {{item.target === null ? '自由' : item.target}} {{exercise.unit}}</text><text>{{item.status === 'skipped' ? '跳过' : item.status === 'completed' ? '完成' : '未完成'}}</text></view>
+      <button wx:if="{{!exercise.isTimed && !saved}}" class="opt-button" bindtap="correctLastCount">撤销末组误计 −1</button>
+      <view class="spaced">主观疲劳</view><picker mode="selector" range="{{fatigueOptions}}" value="{{fatigueIndex}}" bindchange="onFatigueChange" disabled="{{saved}}"><view class="field-input">{{fatigueOptions[fatigueIndex]}} ▾</view></picker>
+      <button class="button button-primary spaced" bindtap="saveResult" disabled="{{saved}}">{{saved ? '已保存' : '保存结果并更新计划'}}</button>
+      <view class="muted spaced">离开页面会按当前疲劳选择自动保存；未调整时按“适中”处理。历史浏览与统计功能将在后续开放。</view>
+      <view wx:if="{{message}}" class="opt-warning">{{message}}</view>
+      <view wx:for="{{nextReasons}}" wx:key="*this" class="muted spaced">{{item}}</view>
+      <view wx:if="{{nextTime}}" class="muted spaced">下次建议训练：{{nextTime}}</view>
+      <navigator class="button button-secondary spaced" url="/pages/plan/index?exerciseId={{exercise.id}}" open-type="redirect">查看长期计划</navigator>
+      <navigator class="button home-link" url="/pages/home/index" open-type="switchTab">回到首页</navigator>
+    </view>
+  </block>
+  <empty-state wx:else heading="没有可展示的训练结果" />
 </view>

@@ -1,3 +1,15 @@
 <view class="page">
-  <empty-state heading="初始能力测试" description="能力评估功能正在准备中。" />
+  <block wx:if="{{exercise}}">
+    <view class="page-title">{{exercise.name}} · 能力评估</view>
+    <view class="card form-card">
+      <view class="section-title">记录当前最大有效{{exercise.isTimed ? '坚持时间' : '次数'}}</view>
+      <view class="muted spaced">可进行一次测试，也可以填写已知能力。不适或疼痛时停止，不为完成数字强撑。</view>
+      <navigator class="button button-secondary spaced" url="{{testUrl}}" open-type="redirect">进入能力测试</navigator>
+      <view class="spaced">手动填写 / 修改（{{exercise.unit}}）</view>
+      <input class="field-input" type="number" value="{{value}}" bindinput="onValueInput" placeholder="填写有效的正整数" />
+      <button class="button button-primary spaced" bindtap="saveAssessment">保存并生成计划</button>
+    </view>
+    <view wx:if="{{message}}" class="opt-warning">{{message}}</view>
+  </block>
+  <empty-state wx:else heading="请先选择运动项目" />
 </view>
