@@ -1,3 +1,51 @@
 <view class="page">
-  <empty-state heading="训练执行" description="训练功能正在准备中。" />
+  <block wx:if="{{exercise}}">
+    <view class="training-heading">
+      <view><view class="eyebrow">训练准备</view><view class="exercise-title">{{exercise.name}}</view></view>
+      <navigator class="change-link" url="/pages/exercises/index" open-type="redirect" hover-class="button-hover">更换项目</navigator>
+    </view>
+    <view class="muted exercise-description">{{exercise.description}}</view>
+    <view class="counter-preview">
+      <view class="preview-heading"><text>{{exercise.currentLabel}}</text><text class="status-pill">尚未开始</text></view>
+      <view class="counter-value">—<text class="counter-unit">{{exercise.unit}}</text></view>
+      <view class="counter-caption">{{exercise.isTimed ? '计时功能准备中' : '计数功能准备中'}}</view>
+      <view class="preview-divider"></view>
+      <view class="preview-summary"><text>{{exercise.totalLabel}}</text><text>— {{exercise.unit}}</text></view>
+    </view>
+
+    <view class="session-metrics">
+      <view class="metric"><view class="metric-label">当前组</view><view class="metric-value">—</view></view>
+      <view class="metric"><view class="metric-label">本组目标（{{exercise.unit}}）</view><view class="metric-value">—</view></view>
+      <view class="metric"><view class="metric-label">训练用时</view><view class="metric-value">—</view></view>
+      <view class="metric"><view class="metric-label">休息倒计时</view><view class="metric-value">—</view></view>
+    </view>
+
+    <view class="card detail-card">
+      <view class="section-title">训练目标</view>
+      <view class="target-status">尚未设置</view>
+      <view class="muted detail-description">能力评估与个人训练计划准备中。</view>
+    </view>
+    <view class="card detail-card">
+      <block wx:if="{{exercise.isTimed}}">
+        <view class="section-title">计时方式</view>
+        <view class="mode-row"><text>按秒计时</text><text class="mode-status">暂未开放</text></view>
+        <view class="muted detail-description">平板支撑使用计时器，无需摄像头。</view>
+      </block>
+      <block wx:else>
+        <view class="section-title">计数方式</view>
+        <view class="mode-row"><text>触屏计数</text><text class="mode-status">暂未开放</text></view>
+        <view class="mode-row"><text>手动调整</text><text class="mode-status">暂未开放</text></view>
+        <view class="mode-row"><text>光学感应</text><text class="mode-status">待设备验证</text></view>
+      </block>
+    </view>
+    <view class="training-footer">
+      <button class="button button-unavailable" disabled="{{true}}">训练功能准备中</button>
+      <view class="muted footer-description">当前仅展示训练界面，尚未开始训练。</view>
+    </view>
+  </block>
+  <block wx:else>
+    <empty-state heading="请先选择运动项目" description="此入口没有有效的运动项目，请重新选择。" show-home="{{false}}" />
+    <navigator class="button button-primary select-link" url="/pages/exercises/index" open-type="redirect" hover-class="button-hover">选择运动项目</navigator>
+    <navigator class="button home-link" url="/pages/home/index" open-type="switchTab" hover-class="button-hover">回到首页</navigator>
+  </block>
 </view>

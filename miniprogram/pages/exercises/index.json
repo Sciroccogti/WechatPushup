@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "运动项目选择",
-  "usingComponents": {
-    "empty-state": "/components/empty-state/index"
-  }
+  "navigationBarTitleText": "选择运动项目"
 }

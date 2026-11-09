@@ -1,1 +1,13 @@
-/* 页面专属样式在对应功能阶段添加；通用布局来自 app.wxss。 */
+.page-heading { font-size: 46rpx; line-height: 1.4; font-weight: 700; }
+.page-description { margin-top: 18rpx; }
+.exercise-section { margin-top: 40rpx; }
+.section-title { font-size: 30rpx; font-weight: 600; }
+.section-description { margin-top: 6rpx; margin-bottom: 20rpx; font-size: 24rpx; }
+.exercise-row { display: flex; align-items: center; padding: 28rpx 24rpx; margin-top: 16rpx; min-height: 136rpx; background: #fff; border: 1rpx solid #e3e9e1; border-radius: 24rpx; }
+.exercise-mark { width: 72rpx; height: 72rpx; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #eaf0e6; border-radius: 20rpx; font-size: 27rpx; font-weight: 600; color: #456a50; }
+.exercise-info { flex: 1; min-width: 0; margin-left: 22rpx; }
+.exercise-name { font-size: 32rpx; font-weight: 600; }
+.exercise-description { font-size: 23rpx; color: #66776c; margin-top: 8rpx; }
+.exercise-trailing { display: flex; align-items: center; flex-shrink: 0; margin-left: 16rpx; }
+.arrow { color: #89978d; margin-left: 14rpx; font-size: 36rpx; }
+.availability { margin-top: 36rpx; font-size: 24rpx; }

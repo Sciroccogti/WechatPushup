@@ -94,6 +94,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check-wechat.p
 
 ## 验证记录
 
+后续反馈（2026-11-10）：用户表示“测试无误，进入阶段2”。据此记录阶段1已获用户验收；用户未说明测试机型、系统或具体用例，不推断所有Android/iOS场景已通过，也不更改阶段0光学状态。下表保留阶段1交付当时的自动验证记录。
+
 | 检查 | 本次结果 | 限制 |
 | --- | --- | --- |
 | Node.js 既有25项测试 | 全部通过 | 阶段0算法和模拟生命周期回归，不是硬件测试 |
@@ -101,9 +103,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check-wechat.p
 | 正式 WXML 编译 | 13份通过 | 12页+1个组件；本机开发者工具内置wcc |
 | 正式 WXSS 编译 | 15份通过 | 应用、通用样式、12页+1个组件；本机内置wcsc |
 | Demo 编译回归 | 1份WXML、2份WXSS通过 | 原实验运行代码未迁入正式工程 |
-| 开发者工具 GUI 运行、页面跳转、真机安全区 | 待用户验证 | 本次完成的是本地编译检查，未自动操作GUI/手机 |
+| 开发者工具 GUI 运行、页面跳转、真机安全区 | 用户反馈测试无误（设备/用例未指定） | 自动验证仍限于本地编译；未自行操作GUI/手机 |
 | Android/iPhone光学效果 | 仍待真机验证 | 阶段1没有改变硬件验证结论 |
 
 本次沿用普通 WebView 原生页面与组件；没有引入 Skyline、插件、额外 SDK 或未经核查的新硬件 API。工程配置与导航写法已核对[微信全局配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)、[自定义组件](https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/)、[navigator](https://developers.weixin.qq.com/miniprogram/dev/component/navigator.html)官方文档，副本在 `.audit/phase-1/`。`sitemapLocation` 按全局配置声明，开发阶段禁止搜索索引，发布前重审。
 
-阶段 1 完成后停止，不自动进入阶段 2。
+阶段 1 交付时停止；用户后续已明确授权阶段 2，详见 [阶段 2 交付文档](phase-2.md)。

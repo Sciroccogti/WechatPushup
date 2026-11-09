@@ -80,13 +80,13 @@ function checkApp(appRoot, projectFile) {
       if (!['.js', '.json'].some((ext) => fs.existsSync(dependency + ext))) throw new Error('Missing module: ' + dependency);
     }
     if (/\bwx\.(request|uploadFile|connectSocket|login|setStorageSync|setStorage|createCamera|startLightSensor|onLightSensorChange)\s*\(/.test(source) || /\.(takePhoto|startRecord)\s*\(/.test(source)) throw new Error('Unexpected API for current stage: ' + file);
-    if (appRoot === product && /\bwx\./.test(source)) throw new Error('Stage 1 must not initialize platform services: ' + file);
+    if (appRoot === product && /\bwx\./.test(source)) throw new Error('Stage 2 must not initialize platform services: ' + file);
   });
   return app.pages.length;
 }
 const pageCount = checkApp(product, path.join(root, 'project.config.json'));
 const demoPageCount = checkApp(demo, path.join(demo, 'project.config.json'));
-if (pageCount !== 12) throw new Error('Stage 1 must register all 12 planned pages.');
+if (pageCount !== 12) throw new Error('The app must register all 12 planned pages.');
 const wxml = fs.readFileSync(path.join(demo, 'pages/index/index.wxml'), 'utf8');
 if (!wxml.includes('frame-size="small"') || !wxml.includes('device-position="front"') || !wxml.includes('wx:if="{{cameraMounted}}"')) throw new Error('Demo camera safety attributes missing');
 const { EXERCISES } = require('../miniprogram/config/exercises');

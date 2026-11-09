@@ -1,9 +1,18 @@
 .brand { font-size: 26rpx; font-weight: 600; letter-spacing: 2rpx; color: #456a50; }
-.hero { margin-top: 48rpx; font-size: 60rpx; line-height: 1.35; font-weight: 700; letter-spacing: -1rpx; }
+.hero { margin-top: 36rpx; font-size: 58rpx; line-height: 1.35; font-weight: 700; letter-spacing: -1rpx; }
 .hero-line { display: block; }
-.intro { margin-top: 28rpx; }
-.welcome-card { margin-top: 56rpx; }
-.card-title { font-size: 34rpx; font-weight: 600; }
-.card-description { margin-top: 18rpx; }
-.start-link { margin-top: 36rpx; }
+.intro { margin-top: 24rpx; }
+.welcome-card { margin-top: 36rpx; padding: 34rpx; background: #285d3e; color: #fff; border-radius: 28rpx; }
+.welcome-label { color: #c2dec8; font-size: 24rpx; }
+.welcome-title { margin-top: 12rpx; font-size: 40rpx; font-weight: 600; }
+.welcome-description { color: #d2e4d6; font-size: 26rpx; margin-top: 14rpx; }
+.choose-link { background: #def0ce; color: #1f452f; justify-content: space-between; margin-top: 28rpx; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; margin: 40rpx 0 20rpx; font-size: 32rpx; font-weight: 600; }
+.exercise-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.exercise-tile { width: 48%; padding: 26rpx; margin-bottom: 20rpx; background: #fff; border: 1rpx solid #e3e9e1; border-radius: 24rpx; }
+.tile-top { display: flex; align-items: center; justify-content: space-between; }
+.tile-number { font-size: 26rpx; color: #89978d; font-variant-numeric: tabular-nums; }
+.exercise-name { margin-top: 26rpx; font-size: 32rpx; font-weight: 600; }
+.tile-unit { margin-top: 8rpx; color: #66776c; font-size: 24rpx; }
+.availability { margin-top: 4rpx; font-size: 24rpx; }
 .record-link { min-height: 96rpx; display: flex; align-items: center; justify-content: space-between; padding: 24rpx 8rpx; margin-top: 20rpx; font-size: 28rpx; color: #456a50; }

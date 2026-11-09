@@ -1,1 +1,29 @@
-/* 页面专属样式在对应功能阶段添加；通用布局来自 app.wxss。 */
+.training-heading { display: flex; align-items: center; justify-content: space-between; }
+.eyebrow { font-size: 24rpx; color: #66776c; }
+.exercise-title { font-size: 46rpx; font-weight: 700; line-height: 1.4; margin-top: 10rpx; }
+.change-link { display: flex; align-items: center; justify-content: center; min-height: 88rpx; padding: 18rpx; font-size: 26rpx; color: #285d3e; background: #eaf0e6; border-radius: 18rpx; }
+.exercise-description { margin-top: 18rpx; }
+.counter-preview { margin-top: 32rpx; padding: 32rpx; background: #182d22; color: #f0f6ee; border-radius: 30rpx; }
+.preview-heading { display: flex; justify-content: space-between; align-items: center; font-size: 26rpx; color: #c1d1c2; }
+.status-pill { color: #d4e8ca; background: #304e38; font-size: 22rpx; border-radius: 12rpx; padding: 6rpx 14rpx; }
+.counter-value { text-align: center; font-size: 132rpx; font-weight: 700; line-height: 1.3; padding-top: 28rpx; }
+.counter-unit { font-size: 28rpx; font-weight: 400; color: #bdd2bc; margin-left: 16rpx; }
+.counter-caption { font-size: 26rpx; text-align: center; color: #b3c9b4; margin-top: 8rpx; }
+.preview-divider { height: 1rpx; background: #37523e; margin: 32rpx 0 20rpx; }
+.preview-summary { display: flex; justify-content: space-between; font-size: 25rpx; color: #c1d1c2; }
+.session-metrics { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 4rpx; }
+.metric { width: 48%; margin-top: 20rpx; padding: 24rpx; background: #fff; border: 1rpx solid #e3e9e1; border-radius: 22rpx; }
+.metric-label { font-size: 24rpx; color: #66776c; }
+.metric-value { margin-top: 10rpx; font-size: 38rpx; font-weight: 600; }
+.detail-card { margin-top: 24rpx; }
+.section-title { font-size: 30rpx; font-weight: 600; }
+.target-status { margin-top: 20rpx; font-size: 28rpx; }
+.detail-description { margin-top: 14rpx; font-size: 24rpx; }
+.mode-row { display: flex; align-items: center; justify-content: space-between; min-height: 76rpx; margin-top: 12rpx; font-size: 27rpx; }
+.mode-status { color: #66776c; font-size: 23rpx; margin-left: 20rpx; }
+.training-footer { margin-top: 32rpx; }
+.button-unavailable[disabled] { color: #5e6f64; background: #dfe6db; border: 0; }
+.button-unavailable::after { border: 0; }
+.footer-description { margin-top: 16rpx; font-size: 24rpx; text-align: center; }
+.select-link { margin-top: 28rpx; }
+.home-link { margin-top: 16rpx; color: #456a50; }

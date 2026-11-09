@@ -7,3 +7,5 @@ view, navigator, button { box-sizing: border-box; }
 .button-primary { background: #285d3e; color: #fff; }
 .button-secondary { background: #eaf0e6; color: #285d3e; }
 .button-hover { opacity: .8; }
+.type-tag { display: inline-block; padding: 5rpx 14rpx; font-size: 22rpx; line-height: 1.5; color: #456a50; background: #eaf0e6; border-radius: 12rpx; white-space: nowrap; }
+.type-timed { color: #80613e; background: #f4eddf; }

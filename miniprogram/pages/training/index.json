@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "训练执行",
+  "navigationBarTitleText": "训练准备",
   "usingComponents": {
     "empty-state": "/components/empty-state/index"
   }
