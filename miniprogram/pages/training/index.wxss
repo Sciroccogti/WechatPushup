@@ -57,3 +57,16 @@
 .training-controls .opt-primary { background: #285d3e; color: #fff; }
 .training-sensor-readout { font-size: 22rpx; color: #48614e; text-align: center; padding: 10rpx; }
 .training-empty { margin-top: 38rpx; }
+/* 训练/休息页使用大触区，覆盖全局小号光学工具按钮的尺寸。 */
+.training-controls .opt-row { margin-top: 24rpx; align-items: stretch; }
+.training-controls .opt-button, .rest-page .opt-button, .rest-page .button { display: flex; align-items: center; justify-content: center; min-height: 136rpx; padding: 24rpx 18rpx; border-radius: 24rpx; font-size: 32rpx; font-weight: 600; line-height: 1.4; white-space: normal; }
+.training-controls .opt-row .opt-button, .rest-page .opt-row .opt-button { margin-left: 8rpx; margin-right: 8rpx; }
+.training-controls .training-main-actions { flex-wrap: wrap; margin-top: 24rpx; }
+.training-controls .training-main-actions .training-start-button { flex: 0 0 100%; width: 100%; min-height: 176rpx; margin: 0 0 24rpx; font-size: 40rpx; }
+.training-controls .training-main-actions .training-pause-button, .training-controls .training-main-actions .training-end-button { min-height: 160rpx; font-size: 36rpx; }
+.training-controls .training-main-actions .training-pause-button { margin-left: 0; }
+.training-controls .training-main-actions .training-end-button { margin-right: 0; }
+.training-controls .tuning-link { min-height: 128rpx; font-size: 30rpx; }
+.rest-page .opt-row { margin-top: 24rpx; align-items: stretch; }
+.rest-page .button-primary { width: 100%; min-height: 176rpx; font-size: 40rpx; }
+.rest-page .opt-row .opt-button { min-height: 144rpx; }
