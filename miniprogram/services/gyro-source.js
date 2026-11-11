@@ -35,6 +35,11 @@ class GyroSource {
     } catch (_) { if (valid()) this.fail('陀螺仪调用失败，已使用触屏。'); }
   }
   fail(message) { this.stop(); this.callbacks.fault(message); }
+  configure(options) {
+    if (!this.fsm || owner !== this) return;
+    const signal = this.fsm.configure(options);
+    if (this.active) this.callbacks.signal(signal);
+  }
   stop() {
     this.epoch += 1; this.active = false; clearTimeout(this.timeout); clearInterval(this.watchdog);
     if (this.listener) { try { this.api.offGyroscopeChange(this.listener); } catch (_) {} this.listener = null; }

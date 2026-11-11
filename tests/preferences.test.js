@@ -14,7 +14,7 @@ test('最近使用去重、持久化，已使用优先，未使用保持配置�
   assert.equal(store.markUsed('unknown'), false);
   const reloaded = new PreferencesStore(runtime.wx).load();
   assert.deepEqual(reloaded.recentExerciseIds, ['plank', 'squat']);
-  assert.equal(runtime.storage.get(PREFERENCES_KEY).schemaVersion, 2);
+  assert.equal(runtime.storage.get(PREFERENCES_KEY).schemaVersion, 3);
 });
 
 test('训练页选用即更新排序，首页与列表onShow读取新顺序，无效入口不写入', () => {
@@ -53,7 +53,7 @@ test('持久化参数只接受公开调节字段，不将未知配置传入状�
 });
 
 test('损坏/未来版本与读取失败不覆盖原数据，写满时保留临时值并反馈', () => {
-  for (const invalid of [null, { schemaVersion: 3 }, { schemaVersion: 1, optical: DEFAULT_OPTICAL, recentExerciseIds: [null] }]) {
+  for (const invalid of [null, { schemaVersion: 4 }, { schemaVersion: 1, optical: DEFAULT_OPTICAL, recentExerciseIds: [null] }]) {
     const runtime = createRuntime({ storage: new Map([[PREFERENCES_KEY, invalid]]) });
     const store = new PreferencesStore(runtime.wx); store.load();
     assert.equal(store.saveOptical(DEFAULT_OPTICAL), false);

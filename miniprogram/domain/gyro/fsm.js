@@ -1,9 +1,25 @@
+const { DEFAULT_GYRO, isValidGyro, pickGyro } = require('../../config/gyro');
 // 官方字段为角速度，但文档字段表未注明单位；幅度仅作原始信号积分阈值。
 class GyroFSM {
-  constructor(options) { this.config = Object.assign({ axis: 'auto', minRate: 0.4, minAngle: 0.25, stableMs: 120, cooldownMs: 900, maxCycleMs: 6000 }, options); this.reset(); }
+  constructor(options) {
+    const config = Object.assign({}, DEFAULT_GYRO, options);
+    if (!isValidGyro(config)) throw new Error('INVALID_GYRO_SETTINGS');
+    this.config = pickGyro(config); this.reset();
+  }
+  configure(options) {
+    const config = Object.assign({}, this.config, options);
+    if (!isValidGyro(config)) throw new Error('INVALID_GYRO_SETTINGS');
+    this.config = pickGyro(config);
+    // 保留静止校准基准和冷却时间；丢弃半周期，静止后才接受新的完整周期。
+    if (this.state === 'FAULT') this.reset();
+    else if (this.state !== 'CALIBRATING') this.state = 'SETTLE';
+    this.candidate = null; this.angle = 0; this.peak = 0; this.axis = null;
+    this.quietAt = null; this.returnAt = null; this.reverseAt = null;
+    return this.snapshot(false);
+  }
   reset() {
     this.state = 'CALIBRATING'; this.samples = []; this.lastAt = null; this.filtered = { x: 0, y: 0, z: 0 };
-    this.bias = { x: 0, y: 0, z: 0 }; this.candidate = null; this.lastCountAt = -Infinity; this.angle = 0; this.issue = '';
+    this.bias = { x: 0, y: 0, z: 0 }; this.candidate = null; this.lastCountAt = -Infinity; this.angle = 0; this.axis = null; this.issue = '';
   }
   feed(raw, at) {
     if (!raw || !['x', 'y', 'z'].every((axis) => Number.isFinite(raw[axis])) || !Number.isFinite(at) || (this.lastAt !== null && at <= this.lastAt)) return this.snapshot(false);
@@ -20,7 +36,7 @@ class GyroFSM {
       }
       this.state = 'READY'; return this.snapshot(false);
     }
-    for (const axis of ['x', 'y', 'z']) this.filtered[axis] += 0.35 * (raw[axis] - this.bias[axis] - this.filtered[axis]);
+    for (const axis of ['x', 'y', 'z']) this.filtered[axis] += this.config.alpha * (raw[axis] - this.bias[axis] - this.filtered[axis]);
     if (this.state === 'COUNT') { this.state = 'SETTLE'; this.quietAt = null; }
     if (this.state === 'SETTLE') {
       if (['x', 'y', 'z'].every((axis) => Math.abs(this.filtered[axis]) < this.config.minRate * 0.4)) {

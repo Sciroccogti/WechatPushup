@@ -1,1 +1,1 @@
-/* 设置与校准共用 templates/optical.wxml，样式由全局 optical.wxss 提供。 */
+@import '../../styles/exercise-settings.wxss';

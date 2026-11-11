@@ -178,7 +178,7 @@ test('累计时长与最近排序独立，旧偏好迁移后不丢光学参数�
   const { DEFAULT_OPTICAL } = require('../miniprogram/config/optical');
   const h = createRuntime({ storage: new Map([[PREFERENCES_KEY, { schemaVersion: 1, optical: { ...DEFAULT_OPTICAL, darkRatio: 0.7 }, recentExerciseIds: ['plank'] }]]) });
   const store = new PreferencesStore(h.wx); const migrated = store.load();
-  assert.equal(migrated.schemaVersion, 2); assert.equal(migrated.optical.darkRatio, 0.7); assert.equal(migrated.sortMode, 'duration');
+  assert.equal(migrated.schemaVersion, 3); assert.equal(migrated.optical.darkRatio, 0.7); assert.equal(migrated.sortMode, 'duration');
   store.addUsage('squat', 60000); store.markUsed('plank');
   const selection = h.openPage('home'); assert.equal(selection.data.exercises[0].id, 'squat');
   selection.onSortChange({ detail: { value: 1 } }); assert.equal(selection.data.exercises[0].id, 'plank');

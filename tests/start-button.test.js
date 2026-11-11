@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createRuntime } = require('./helpers/runtime');
 const { trainingEvents } = require('./helpers/wxml-events');
+const { TrainingStore } = require('../miniprogram/services/training-store');
 
 test('四项运动由真实WXML绑定的开始按钮一次touchstart→touchend→tap立即启动', () => {
   for (const id of ['push-up', 'sit-up', 'squat', 'plank']) {
@@ -57,4 +58,32 @@ test('未开始与暂停期间不轮询刷视图，工作时只提交变化字�
   events.tapButton('pauseCounting', h); assert.equal(h.timers.size, 0);
   h.renderPatches.length = 0; h.advance(3000); assert.equal(h.renderPatches.length, 0);
   page.onUnload(); assert.equal(h.timers.size, 0);
+});
+
+test('准备界面选传感器只切换方式，点击开始才启动；控件事件不误计数', () => {
+  for (const id of ['push-up', 'sit-up', 'squat']) {
+    const h = createRuntime(); const page = h.openPage('training', { exerciseId: id }); const events = trainingEvents(page);
+    events.tapButton('selectSensorMode', h);
+    assert.equal(page.data.selectedMode, id === 'push-up' ? 'optical' : 'gyro');
+    assert.equal(page.data.phase, 'idle'); assert.equal(h.calls.privacy, 0); assert.equal(h.calls.gyroStart, 0); assert.equal(h.timers.size, 0);
+    events.tapButton('startCounting', h); assert.equal(page.data.phase, 'calibrating'); assert.equal(page.data.count, 0);
+    events.tapButton('pauseCounting', h); assert.equal(page.data.phase, 'paused');
+    events.tapButton('selectTouch', h); events.tapButton('startCounting', h);
+    assert.equal(page.data.phase, 'running'); assert.equal(page.data.count, 0);
+    events.surfaceTouch(); assert.equal(page.data.count, 1); page.onUnload(); assert.equal(h.timers.size, 0);
+  }
+});
+
+test('本组设置弹层可调整目标，开始时收起；不计时、不加数，不影响五组启动', () => {
+  for (const id of ['push-up', 'sit-up', 'squat', 'plank']) {
+    const h = createRuntime(); new TrainingStore(h.wx).saveAssessment(id, 20, h.now());
+    const page = h.openPage('training', { exerciseId: id, purpose: 'plan' }); const events = trainingEvents(page);
+    assert.equal(page.data.groupSettingsOpen, false);
+    events.tapButton('toggleGroupSettings', h); assert.equal(page.data.groupSettingsOpen, true);
+    page.onTargetInput({ detail: { value: '8' } }); events.tapButton('applyTarget', h);
+    assert.equal(page.data.target, 8); assert.equal(page.data.count, 0); assert.equal(h.timers.size, 0);
+    events.tapButton('startCounting', h); assert.equal(page.data.groupSettingsOpen, false);
+    assert.equal(page.data.phase, 'running'); assert.equal(page.data.count, 0); assert.equal(page._session.groups.length, 5);
+    page.onUnload(); assert.equal(h.timers.size, 0);
+  }
 });

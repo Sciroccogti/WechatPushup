@@ -5,15 +5,16 @@ const { CounterManager } = require('../domain/counter/manager');
 const { TrainingStore } = require('./training-store');
 const { beginSession, getSession, clearSession } = require('./session-runtime');
 const { GyroSource } = require('./gyro-source');
+const { GYRO_AXES } = require('../config/gyro');
 const { withOpticalPage } = require('./optical-page');
 
 function createTrainingPage(surface) {
   return withOpticalPage({
     data: { exercise: null, count: 0, total: 0, selectedMode: 'touch', phase: 'idle', notice: '', blockedMessage: '',
       exercises: [], exerciseNames: [], exerciseIndex: 0, sortOptions: ['累计训练时长', '最近使用'], sortIndex: 0,
-      feedbackColor: '#f5f7f4', touchRipples: [],
+      feedbackColor: '#f5f7f4', touchRipples: [], groupSettingsOpen: false,
       purpose: 'free', groupNumber: 1, groupCount: 1, target: '—', targetDraft: '', restSeconds: 0,
-      elapsed: '0秒', groupRows: [], gyroAxisIndex: 0, gyroAxes: ['胸前竖向（X轴）', '自动选轴'], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' } },
+      elapsed: '0秒', groupRows: [], gyroAxisLabel: GYRO_AXES[0], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' } },
     onLoad(options) {
       const params = options || {};
       const exercise = getExerciseViewById(params.exerciseId);
@@ -43,7 +44,7 @@ function createTrainingPage(surface) {
         const session = getSession(params.sessionId);
         if (!session || session.exerciseId !== exercise.id) return this.setData({ blockedMessage: '这次训练已结束或页面已重启，请重新进入计划。' });
         this._session = session;
-        this.setData({ selectedMode: session.lastMode || (exercise.isTimed ? 'timer' : 'touch'), gyroAxisIndex: session.gyroAxisIndex || 0 });
+        this.setData({ selectedMode: session.lastMode || (exercise.isTimed ? 'timer' : 'touch') });
       } else {
         const purpose = ['plan', 'assessment'].includes(params.purpose) ? params.purpose : 'free';
         const plan = purpose === 'plan' ? this._trainingStore.plan(exercise.id, Date.now()) : null;
@@ -81,6 +82,7 @@ function createTrainingPage(surface) {
     _loadExerciseSelection() {
       const preferences = this._prefs.load();
       this.setData(Object.assign(getExerciseSelection(preferences, this.data.exercise && this.data.exercise.id), { storageMessage: this._prefs.warning || this._trainingStore.warning }));
+      if (this.data.exercise && this.data.exercise.sensor === 'gyro') this.setData({ gyroAxisLabel: GYRO_AXES[preferences.gyro[this.data.exercise.id].axis === 'x' ? 0 : 1] });
     },
     onSortChange(event) {
       this._prefs.setSortMode(Number(event.detail.value) === 0 ? 'duration' : 'recent');
@@ -209,6 +211,7 @@ function createTrainingPage(surface) {
     },
     startCounting(event) {
       if (!this._canWork()) return;
+      if (this.data.groupSettingsOpen) this.setData({ groupSettingsOpen: false });
       if (this.data.selectedMode === 'optical') return this.startOptical();
       if (this.data.selectedMode === 'gyro') return this.startGyro();
       if (this._startWork(this.data.exercise.isTimed ? 'timer' : 'touch') && this.data.exercise.isTimed) {
@@ -228,13 +231,15 @@ function createTrainingPage(surface) {
     onOpticalStopped() { this._preparingSensor = false; if (this._session) { this._session.pause(Date.now()); this._flushUsage(true); this._syncSession(); } },
     startGyro() {
       if (!this._canWork() || this.data.exercise.sensor !== 'gyro') return;
-      this._releaseOptical(false); this._pauseForCalibration('gyro'); this._gyro.start({ axis: this.data.gyroAxisIndex === 0 ? 'x' : 'auto' });
+      const settings = this._prefs.load().gyro[this.data.exercise.id];
+      this.setData({ gyroAxisLabel: GYRO_AXES[settings.axis === 'x' ? 0 : 1], storageMessage: this._prefs.warning });
+      this._releaseOptical(false); this._pauseForCalibration('gyro'); this._gyro.start(settings);
     },
-    onGyroAxisChange(event) {
-      const value = Number(event.detail.value) === 1 ? 1 : 0;
-      this.setData({ gyroAxisIndex: value }); if (this._session) this._session.gyroAxisIndex = value;
-      if (this.data.selectedMode === 'gyro' && ['running', 'calibrating'].includes(this.data.phase)) this.startGyro();
+    selectSensorMode() {
+      if (!this._canWork() || !['idle', 'paused'].includes(this.data.phase) || !this.data.exercise.sensor) return;
+      this._stopSensors(); this.setData({ selectedMode: this.data.exercise.sensor, notice: '' });
     },
+    toggleGroupSettings() { this.setData({ groupSettingsOpen: !this.data.groupSettingsOpen, targetDraft: this.data.target === '—' ? '' : String(this.data.target) }); },
     _fallbackTouch(message) {
       if (!this._visible || !this._session) return;
       this._gyro.stop(); this._releaseOptical(false);

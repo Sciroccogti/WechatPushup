@@ -1,8 +1,12 @@
 <import src="./optical.wxml" />
 <template name="optical-settings">
-  <view class="opt-page-title">设置与光学测试</view>
+  <view class="opt-page-title">运动设置</view>
   <picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="field-input">项目排序：{{sortOptions[sortIndex]}} ▾</view></picker>
-  <view class="opt-hint">累计时长只计算实际训练；暂停、休息、校准和后台不计入。以下相机设置只用于俯卧撑。</view>
+  <view class="settings-tabs" role="tablist">
+    <button wx:for="{{exerciseTabs}}" wx:key="id" class="settings-tab {{selectedExerciseId === item.id ? 'settings-tab-selected' : ''}}" role="tab" aria-selected="{{selectedExerciseId === item.id}}" data-id="{{item.id}}" bindtap="onExerciseTab">{{item.name}}</button>
+  </view>
+  <view class="opt-hint">{{selectedExerciseName}} · 参数独立保存在本机。切换运动会停止当前测试，不会自动开启硬件。</view>
+  <block wx:if="{{settingsSensor === 'optical'}}">
   <view class="opt-hint">边测试边调节，参数只保存在本机。离开页面会停止采集；返回后需重新开启与校准。</view>
   <view class="opt-live-strip">
     <view class="opt-live-values"><text>亮度 {{optical.filtered}}</text><text>相对 {{optical.ratio}}</text><text>测试 {{optical.testCount}} 次</text></view>
@@ -19,8 +23,36 @@
     <view class="opt-hint">拖动立即应用，松手保存；基准保留，未完成的半个周期会清除。改变环境光后请重新校准。默认参数仅为实验起点。</view>
     <button class="opt-button" bindtap="resetOpticalSettings">恢复默认参数</button>
   </view>
+  </block>
+  <block wx:elif="{{settingsSensor === 'gyro'}}">
+    <view class="opt-live-strip">
+      <view class="opt-live-values"><text>{{gyroTest.state}}</text><text>幅度 {{gyroTest.angle}}</text><text>测试 {{gyroTest.count}} 次</text></view>
+      <view class="opt-hint">X {{gyroTest.x}} / Y {{gyroTest.y}} / Z {{gyroTest.z}} · 检测轴 {{gyroTest.axis}}</view>
+    </view>
+    <view class="opt-panel">
+      <view class="opt-title">{{selectedExerciseName}} · 陀螺仪实时测试</view>
+      <view class="opt-hint">手机竖向固定胸前或上身，启动后先静止校准，再做完整往返动作。这里只检测转动周期，识别效果待真机验证。</view>
+      <view class="opt-row"><button class="opt-button opt-primary" bindtap="startGyroTest">{{gyroTest.active ? '重新校准测试' : '开启陀螺仪测试'}}</button><button class="opt-button" bindtap="stopGyroTest" disabled="{{!gyroTest.active}}">停止测试</button></view>
+      <view class="opt-status" aria-live="polite">{{gyroTest.status}}</view>
+    </view>
+    <view class="opt-panel">
+      <view class="opt-title">识别轴与周期参数</view>
+      <picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker>
+      <view wx:for="{{gyroSliders}}" wx:key="key" class="opt-slider">
+        <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.display}} {{item.unit}}</text></view>
+        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#285d3e" bindchanging="onGyroSettingChanging" bindchange="onGyroSettingChange" />
+      </view>
+      <view class="opt-hint">拖动即时应用，松手保存；保留静止校准基准，丢弃未完成周期，请短暂静止再测试。速度与幅度为原始信号阈值，不代表标准姿态或角度。</view>
+      <button class="opt-button" bindtap="resetGyroSettings">恢复本运动默认参数</button>
+    </view>
+  </block>
+  <view wx:else class="opt-panel">
+    <view class="opt-title">平板支撑 · 计时器</view>
+    <view class="opt-hint">平板支撑无需传感器。训练页点击开始或轻触大区域开始计时；训练中触屏只播放反馈。目标时间可在计划训练的本组设置中调整。</view>
+  </view>
   <view wx:if="{{storageMessage}}" class="opt-warning">{{storageMessage}}</view>
-  <view class="opt-hint">{{optical.device}}</view>
+  <view wx:if="{{settingsSensor === 'optical'}}" class="opt-hint">{{optical.device}}</view>
+  <view class="opt-hint">排序只累计实际训练时间，暂停、休息、校准和后台不计入。</view>
   <view class="opt-hint">{{appName}} · v{{version}}</view>
   <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
 </template>

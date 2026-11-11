@@ -213,7 +213,7 @@ function withOpticalPage(definition) {
       }
     },
     startOpticalSimulation() {
-      if (!this._visible || !definition.allowSimulation) return;
+      if (!this._visible || !definition.allowSimulation || this._opticalAllowed === false) return;
       this._releaseOptical(false);
       this._newDetector('simulation');
       const signal = buildSignal('normal');

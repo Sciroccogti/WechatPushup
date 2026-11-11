@@ -1,0 +1,4 @@
+.settings-tabs { position: sticky; top: 0; z-index: 12; display: flex; margin-top: 24rpx; padding: 8rpx; background: #e7eee3; border-radius: 20rpx; }
+.settings-tab { flex: 1; min-width: 0; min-height: 88rpx; display: flex; align-items: center; justify-content: center; margin: 0; padding: 10rpx 2rpx; border-radius: 14rpx; font-size: 25rpx; font-weight: 600; line-height: 1.4; color: #48614e; background: transparent; }
+.settings-tab-selected { background: #285d3e; color: #fff; }
+.opt-live-strip { top: 108rpx; }

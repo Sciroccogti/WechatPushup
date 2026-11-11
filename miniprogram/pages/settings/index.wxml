@@ -1,2 +1,2 @@
 <import src="../../templates/optical-settings.wxml" />
-<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version, sortOptions, sortIndex}}" /></view>
+<view class="page"><template is="optical-settings" data="{{optical, sliders, storageMessage, appName, version, sortOptions, sortIndex, exerciseTabs, selectedExerciseId, selectedExerciseName, settingsSensor, gyroAxes, gyroAxisIndex, gyroSliders, gyroTest}}" /></view>

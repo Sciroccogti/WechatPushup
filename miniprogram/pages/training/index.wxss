@@ -70,3 +70,38 @@
 .rest-page .opt-row { margin-top: 24rpx; align-items: stretch; }
 .rest-page .button-primary { width: 100%; min-height: 176rpx; font-size: 40rpx; }
 .rest-page .opt-row .opt-button { min-height: 144rpx; }
+/* 准备界面使用视口内的纵向布局；大触区和训练中的按钮尺寸保持。 */
+.training-prestart .training-page { height: 100vh; display: flex; flex-direction: column; padding: 12rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); }
+.training-prestart .training-toolbar { min-height: 72rpx; flex-shrink: 0; }
+.training-prestart .exercise-picker { padding: 8rpx; font-size: 32rpx; }
+.training-prestart .training-sort { padding: 12rpx; }
+.training-prestart .training-touch-surface { flex: 1; min-height: 0; padding: 12rpx 0; }
+.training-prestart .training-purpose { font-size: 23rpx; line-height: 1.3; }
+.training-prestart .training-phase { margin-top: 8rpx; padding: 4rpx 16rpx; line-height: 1.3; font-size: 22rpx; }
+.training-prestart .training-count { margin-top: 8rpx; font-size: 76rpx; line-height: 1.15; }
+.training-prestart .training-target { font-size: 24rpx; line-height: 1.4; }
+.training-prestart .training-touch-hint, .training-prestart .training-touch-detail { display: none; }
+.training-prestart .training-metrics { margin-top: 12rpx; font-size: 22rpx; }
+.training-prestart .training-controls { flex-shrink: 0; padding: 0; }
+.training-prestart .training-setup { padding: 12rpx; border-radius: 20rpx; }
+.training-prestart .training-setup .opt-row { margin-top: 0; }
+.training-prestart .training-setup .opt-button { min-height: 88rpx; padding: 12rpx 8rpx; font-size: 26rpx; border-radius: 16rpx; }
+.setup-hint { font-size: 22rpx; color: #48614e; line-height: 1.5; margin-top: 8rpx; text-align: center; }
+.training-utilities { display: flex; justify-content: space-between; align-items: center; }
+.training-utility { min-height: 72rpx; display: flex; align-items: center; justify-content: center; margin: 0; padding: 12rpx; background: transparent; color: #285d3e; font-size: 24rpx; line-height: 1.4; }
+.training-prestart .training-action-status { margin-top: 8rpx; font-size: 23rpx; line-height: 1.4; min-height: 32rpx; }
+.training-prestart .training-main-actions { margin-top: 12rpx; }
+.training-prestart .training-main-actions .training-start-button { margin-bottom: 0; }
+.training-prestart .training-main-actions .training-pause-button, .training-prestart .training-main-actions .training-end-button { min-height: 96rpx; padding: 12rpx; font-size: 30rpx; }
+.training-prestart .training-main-actions .training-end-button { margin-top: 12rpx; }
+.training-prestart .training-sensor-readout { padding: 6rpx; font-size: 21rpx; }
+.training-prestart .opt-warning { margin-top: 8rpx; padding: 10rpx; font-size: 22rpx; }
+.training-sheet-mask { position: fixed; z-index: 50; inset: 0; display: flex; align-items: flex-end; padding: 24rpx; background: rgba(16,35,24,.65); }
+.training-sheet { width: 100%; max-height: 80vh; overflow-y: auto; padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom)); border-radius: 28rpx; background: #f5f7f4; }
+@media (max-height: 560px) {
+  .training-prestart .training-page { padding-top: 4rpx; padding-bottom: calc(8rpx + env(safe-area-inset-bottom)); }
+  .training-prestart .training-count { font-size: 64rpx; margin-top: 4rpx; }
+  .training-prestart .training-touch-surface { padding: 4rpx 0; }
+  .training-prestart .training-main-actions .training-start-button { min-height: 160rpx; }
+  .training-utility { min-height: 64rpx; padding: 8rpx; }
+}
