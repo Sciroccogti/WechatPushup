@@ -1,13 +1,14 @@
 const { DEFAULT_OPTICAL, isValidOptical } = require('../config/optical');
 const { DEFAULT_GYRO, GYRO_EXERCISES, isValidGyro, pickGyro } = require('../config/gyro');
+const { DEFAULT_SITUP, isValidSitup, pickSitup } = require('../config/situp');
 const { EXERCISES } = require('../config/exercises');
 const { LocalDocument } = require('./storage/local-document');
 const KEY = 'fitness.preferences.v1';
 const ids = EXERCISES.map((item) => item.id);
 const pickOptical = (value) => Object.keys(DEFAULT_OPTICAL).reduce((result, key) => { result[key] = value[key]; return result; }, {});
-const fresh = () => ({ schemaVersion: 3, optical: { ...DEFAULT_OPTICAL }, gyro: { 'sit-up': { ...DEFAULT_GYRO }, squat: { ...DEFAULT_GYRO } }, recentExerciseIds: [], usageMs: {}, sortMode: 'duration' });
+const fresh = () => ({ schemaVersion: 4, optical: { ...DEFAULT_OPTICAL }, gyro: { 'sit-up': { ...DEFAULT_GYRO }, squat: { ...DEFAULT_GYRO } }, situp: { ...DEFAULT_SITUP }, recentExerciseIds: [], usageMs: {}, sortMode: 'duration' });
 function parse(value) {
-  if (!value || ![1, 2, 3].includes(value.schemaVersion) || !isValidOptical(value.optical) || !Array.isArray(value.recentExerciseIds) || value.recentExerciseIds.some((id) => typeof id !== 'string')) throw new Error('INVALID_PREFERENCES');
+  if (!value || ![1, 2, 3, 4].includes(value.schemaVersion) || !isValidOptical(value.optical) || !Array.isArray(value.recentExerciseIds) || value.recentExerciseIds.some((id) => typeof id !== 'string')) throw new Error('INVALID_PREFERENCES');
   const next = fresh(); next.optical = pickOptical(value.optical);
   next.recentExerciseIds = [...new Set(value.recentExerciseIds)].filter((id) => ids.includes(id));
   if (value.schemaVersion >= 2) {
@@ -19,9 +20,16 @@ function parse(value) {
       next.usageMs[id] = time;
     }
   }
-  if (value.schemaVersion === 3) {
+  if (value.schemaVersion >= 3) {
     if (!value.gyro || !GYRO_EXERCISES.every((id) => isValidGyro(value.gyro[id]))) throw new Error('INVALID_GYRO_SETTINGS');
     for (const id of GYRO_EXERCISES) next.gyro[id] = pickGyro(value.gyro[id]);
+  }
+  if (value.schemaVersion === 4) {
+    if (!isValidSitup(value.situp)) throw new Error('INVALID_SITUP_SETTINGS');
+    next.situp = pickSitup(value.situp);
+  } else if (value.schemaVersion === 3) {
+    const previous = next.gyro['sit-up'];
+    next.situp = { ...DEFAULT_SITUP, rotationAxis: previous.axis, cooldownMs: previous.cooldownMs, stableMs: Math.max(80, previous.stableMs), maxCycleMs: Math.max(3000, previous.maxCycleMs), alpha: Math.min(0.8, previous.alpha) };
   }
   return next;
 }
@@ -38,6 +46,10 @@ class PreferencesStore {
   saveGyro(id, settings) {
     if (!GYRO_EXERCISES.includes(id) || !isValidGyro(settings)) throw new Error('INVALID_GYRO_SETTINGS');
     return this.document.update((value) => { value.gyro[id] = pickGyro(settings); });
+  }
+  saveSitup(settings) {
+    if (!isValidSitup(settings)) throw new Error('INVALID_SITUP_SETTINGS');
+    return this.document.update((value) => { value.situp = pickSitup(settings); });
   }
   markUsed(id) {
     if (!ids.includes(id)) return false;

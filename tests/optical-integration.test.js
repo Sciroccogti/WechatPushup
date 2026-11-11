@@ -142,7 +142,7 @@ test('模拟测试不使用相机，参数持久化不包含帧；离开清理�
   page.onSettingChanging(slider('minDarkMs', 350)); page.onUnload();
   const saved = h.storage.get(PREFERENCES_KEY);
   assert.equal(saved.optical.minDarkMs, 350);
-  assert.deepEqual(Object.keys(saved).sort(), ['gyro', 'optical', 'recentExerciseIds', 'schemaVersion', 'sortMode', 'usageMs']);
+  assert.deepEqual(Object.keys(saved).sort(), ['gyro', 'optical', 'recentExerciseIds', 'schemaVersion', 'situp', 'sortMode', 'usageMs']);
 });
 
 test('平板支撑与无效项目禁止相机，初始化超时可恢复', () => {

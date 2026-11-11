@@ -1,7 +1,6 @@
 <import src="./optical.wxml" />
 <template name="optical-settings">
   <view class="opt-page-title">运动设置</view>
-  <picker mode="selector" range="{{sortOptions}}" value="{{sortIndex}}" bindchange="onSortChange"><view class="field-input">项目排序：{{sortOptions[sortIndex]}} ▾</view></picker>
   <view class="settings-tabs" role="tablist">
     <button wx:for="{{exerciseTabs}}" wx:key="id" class="settings-tab {{selectedExerciseId === item.id ? 'settings-tab-selected' : ''}}" role="tab" aria-selected="{{selectedExerciseId === item.id}}" data-id="{{item.id}}" bindtap="onExerciseTab">{{item.name}}</button>
   </view>
@@ -18,11 +17,33 @@
     <view class="opt-hint">百分比相对于校准亮度；低于遮挡阈值并稳定恢复后计一次。两个阈值始终保留至少 5% 间距。</view>
     <view wx:for="{{sliders}}" wx:key="key" class="opt-slider">
       <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.value}} {{item.unit}}</text></view>
-      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#285d3e" bindchanging="onSettingChanging" bindchange="onSettingChange" />
+      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onSettingChanging" bindchange="onSettingChange" />
     </view>
     <view class="opt-hint">拖动立即应用，松手保存；基准保留，未完成的半个周期会清除。改变环境光后请重新校准。默认参数仅为实验起点。</view>
     <button class="opt-button" bindtap="resetOpticalSettings">恢复默认参数</button>
   </view>
+  </block>
+  <block wx:elif="{{settingsSensor === 'motion'}}">
+    <view class="opt-live-strip">
+      <view class="opt-live-values"><text>{{situpTest.state}}</text><text>偏离 {{situpTest.tilt}}°</text><text>测试 {{situpTest.count}} 次</text></view>
+      <view class="opt-hint">加速度幅值比 {{situpTest.magnitude}} · {{situpTest.auxiliary}}</view>
+    </view>
+    <view class="opt-panel">
+      <view class="opt-title">仰卧起坐 · 加速度主导，旋转辅助</view>
+      <view class="opt-hint">手机固定胸前 / 上身，在起始姿态静止校准。加速度估计离开与返回起始姿态的完整周期，旋转只辅助确认，不单独计数。识别效果待真机验证。</view>
+      <view class="opt-row"><button class="opt-button opt-primary" bindtap="startSitupTest">{{situpTest.active ? '重新校准测试' : '开启传感器测试'}}</button><button class="opt-button" bindtap="stopSitupTest" disabled="{{!situpTest.active}}">停止测试</button></view>
+      <view class="opt-status" aria-live="polite">{{situpTest.status}}</view>
+    </view>
+    <view class="opt-panel">
+      <view class="opt-title">加速度周期参数</view>
+      <picker mode="selector" range="{{gyroAxes}}" value="{{rotationAxisIndex}}" bindchange="onRotationAxisChange"><view class="field-input">辅助旋转：{{gyroAxes[rotationAxisIndex]}} ▾</view></picker>
+      <view wx:for="{{situpSliders}}" wx:key="key" class="opt-slider">
+        <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.display}} {{item.unit}}</text></view>
+        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onSitupSettingChanging" bindchange="onSitupSettingChange" />
+      </view>
+      <view class="opt-hint">拖动立即应用，松手保存。保留起始基准、清除半周期，请先回到起始姿态再测试。角度为加速度方向估计，不代表标准动作。旋转不可用时提示并仅用加速度；加速度不可用时用触屏。</view>
+      <button class="opt-button" bindtap="resetSitupSettings">恢复仰卧起坐默认参数</button>
+    </view>
   </block>
   <block wx:elif="{{settingsSensor === 'gyro'}}">
     <view class="opt-live-strip">
@@ -40,7 +61,7 @@
       <picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker>
       <view wx:for="{{gyroSliders}}" wx:key="key" class="opt-slider">
         <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.display}} {{item.unit}}</text></view>
-        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#285d3e" bindchanging="onGyroSettingChanging" bindchange="onGyroSettingChange" />
+        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onGyroSettingChanging" bindchange="onGyroSettingChange" />
       </view>
       <view class="opt-hint">拖动即时应用，松手保存；保留静止校准基准，丢弃未完成周期，请短暂静止再测试。速度与幅度为原始信号阈值，不代表标准姿态或角度。</view>
       <button class="opt-button" bindtap="resetGyroSettings">恢复本运动默认参数</button>
@@ -52,7 +73,6 @@
   </view>
   <view wx:if="{{storageMessage}}" class="opt-warning">{{storageMessage}}</view>
   <view wx:if="{{settingsSensor === 'optical'}}" class="opt-hint">{{optical.device}}</view>
-  <view class="opt-hint">排序只累计实际训练时间，暂停、休息、校准和后台不计入。</view>
   <view class="opt-hint">{{appName}} · v{{version}}</view>
   <template is="optical-privacy" data="{{privacyVisible: optical.privacyVisible}}" />
 </template>

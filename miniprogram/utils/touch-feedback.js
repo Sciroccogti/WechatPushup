@@ -1,4 +1,4 @@
-const PALETTE = Object.freeze(['#d6e8ce', '#cce5d9', '#e0e9c8', '#c8dfc9', '#d8e7bb', '#c8e0d8', '#e4ecd1']);
+const PALETTE = Object.freeze(['#ffe0cc', '#ffd4b7', '#ffebd6', '#f9c8aa', '#ffdabd', '#f5d6c5', '#ffe7ca']);
 
 function nextTouchFeedback(event, previousColor, random = Math.random) {
   const colors = PALETTE.filter((color) => color !== previousColor);

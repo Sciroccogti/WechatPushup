@@ -5,6 +5,7 @@ const { CounterManager } = require('../domain/counter/manager');
 const { TrainingStore } = require('./training-store');
 const { beginSession, getSession, clearSession } = require('./session-runtime');
 const { GyroSource } = require('./gyro-source');
+const { SitupSource } = require('./situp-source');
 const { GYRO_AXES } = require('../config/gyro');
 const { withOpticalPage } = require('./optical-page');
 
@@ -12,13 +13,28 @@ function createTrainingPage(surface) {
   return withOpticalPage({
     data: { exercise: null, count: 0, total: 0, selectedMode: 'touch', phase: 'idle', notice: '', blockedMessage: '',
       exercises: [], exerciseNames: [], exerciseIndex: 0, sortOptions: ['累计训练时长', '最近使用'], sortIndex: 0,
-      feedbackColor: '#f5f7f4', touchRipples: [], groupSettingsOpen: false,
+      feedbackColor: '#f1f4f8', touchRipples: [], groupSettingsOpen: false,
       purpose: 'free', groupNumber: 1, groupCount: 1, target: '—', targetDraft: '', restSeconds: 0,
-      elapsed: '0秒', groupRows: [], gyroAxisLabel: GYRO_AXES[0], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' } },
+      elapsed: '0秒', groupRows: [], gyroAxisLabel: GYRO_AXES[0], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' },
+      motion: { state: 'IDLE', tilt: '—', auxiliary: '旋转辅助' } },
     onLoad(options) {
       const params = options || {};
       const exercise = getExerciseViewById(params.exerciseId);
       this._counter = new CounterManager(); this._trainingStore = new TrainingStore(wx);
+      this._motion = new SitupSource(wx, {
+        signal: (signal) => {
+          if (!this._visible) return;
+          if (signal.state === 'READY' && this._sensorTouchCycle === 'motion') this._sensorTouchCycle = null;
+          if (signal.state === 'READY' && this.data.phase === 'calibrating') this._startWork('motion');
+          if (signal.state === 'CALIBRATING' && this._session && this._session.state === 'working') this._pauseForCalibration('motion');
+          const at = Date.now();
+          if (at - (this._motionRenderAt || 0) >= 200 || signal.counted || this.data.motion.state !== signal.state || this.data.notice !== signal.auxMessage) {
+            this._motionRenderAt = at;
+            this.setData({ motion: { state: signal.state, tilt: signal.tilt.toFixed(1), auxiliary: signal.rotationAvailable ? '旋转辅助已接入' : '仅加速度' }, notice: signal.auxMessage || '' });
+          }
+        },
+        count: (at) => this._acceptCount('motion', at), fault: (message) => this._fallbackTouch(message)
+      });
       this._gyro = new GyroSource(wx, {
         signal: (signal) => {
           if (!this._visible) return;
@@ -38,13 +54,13 @@ function createTrainingPage(surface) {
       this._loadExerciseSelection();
       if (!exercise) return;
       this._prefs.markUsed(exercise.id);
-      const initialMode = exercise.isTimed ? 'timer' : params.mode === exercise.sensor ? params.mode : 'touch';
+      const initialMode = exercise.isTimed ? 'timer' : params.mode === exercise.sensor ? params.mode : exercise.sensor === 'motion' && params.mode === 'gyro' ? 'motion' : 'touch';
       this.setData({ storageMessage: this._prefs.warning || this._trainingStore.warning, selectedMode: initialMode });
       if (params.sessionId) {
         const session = getSession(params.sessionId);
         if (!session || session.exerciseId !== exercise.id) return this.setData({ blockedMessage: '这次训练已结束或页面已重启，请重新进入计划。' });
         this._session = session;
-        this.setData({ selectedMode: session.lastMode || (exercise.isTimed ? 'timer' : 'touch') });
+        this.setData({ selectedMode: exercise.sensor === 'motion' && session.lastMode === 'gyro' ? 'motion' : session.lastMode || (exercise.isTimed ? 'timer' : 'touch') });
       } else {
         const purpose = ['plan', 'assessment'].includes(params.purpose) ? params.purpose : 'free';
         const plan = purpose === 'plan' ? this._trainingStore.plan(exercise.id, Date.now()) : null;
@@ -153,6 +169,7 @@ function createTrainingPage(surface) {
       this._sensorTouchCycle = null;
       this._releaseOptical(!this._visible);
       if (this._gyro) this._gyro.stop();
+      if (this._motion) this._motion.stop();
       this._counter.pause();
     },
     _syncSession() {
@@ -214,12 +231,13 @@ function createTrainingPage(surface) {
       if (this.data.groupSettingsOpen) this.setData({ groupSettingsOpen: false });
       if (this.data.selectedMode === 'optical') return this.startOptical();
       if (this.data.selectedMode === 'gyro') return this.startGyro();
+      if (this.data.selectedMode === 'motion') return this.startMotion();
       if (this._startWork(this.data.exercise.isTimed ? 'timer' : 'touch') && this.data.exercise.isTimed) {
         const point = event && !event.touches && this._controlTouch && Date.now() - this._controlTouchAt < 1000 ? { touches: [this._controlTouch] } : event;
         this._showTouchFeedback(point);
       }
     },
-    onOpticalStarting() { if (this._gyro) this._gyro.stop(); this._pauseForCalibration('optical'); },
+    onOpticalStarting() { if (this._gyro) this._gyro.stop(); if (this._motion) this._motion.stop(); this._pauseForCalibration('optical'); },
     onOpticalStarted() { this.setData({ phase: 'calibrating' }); },
     onOpticalSignal(signal) {
       if (signal.state === 'READY' && this._sensorTouchCycle === 'optical') this._sensorTouchCycle = null;
@@ -233,7 +251,13 @@ function createTrainingPage(surface) {
       if (!this._canWork() || this.data.exercise.sensor !== 'gyro') return;
       const settings = this._prefs.load().gyro[this.data.exercise.id];
       this.setData({ gyroAxisLabel: GYRO_AXES[settings.axis === 'x' ? 0 : 1], storageMessage: this._prefs.warning });
-      this._releaseOptical(false); this._pauseForCalibration('gyro'); this._gyro.start(settings);
+      this._motion.stop(); this._releaseOptical(false); this._pauseForCalibration('gyro'); this._gyro.start(settings);
+    },
+    startMotion() {
+      if (!this._canWork() || this.data.exercise.sensor !== 'motion') return;
+      const settings = this._prefs.load().situp;
+      this._gyro.stop(); this._releaseOptical(false); this._pauseForCalibration('motion');
+      this._motion.start(settings);
     },
     selectSensorMode() {
       if (!this._canWork() || !['idle', 'paused'].includes(this.data.phase) || !this.data.exercise.sensor) return;
@@ -242,7 +266,7 @@ function createTrainingPage(surface) {
     toggleGroupSettings() { this.setData({ groupSettingsOpen: !this.data.groupSettingsOpen, targetDraft: this.data.target === '—' ? '' : String(this.data.target) }); },
     _fallbackTouch(message) {
       if (!this._visible || !this._session) return;
-      this._gyro.stop(); this._releaseOptical(false);
+      this._gyro.stop(); this._motion.stop(); this._releaseOptical(false);
       this._startWork('touch'); this.setData({ notice: message + ' 已降级触屏，完成量保留。' });
     },
     selectTouch() {
@@ -291,6 +315,7 @@ function createTrainingPage(surface) {
       if (this._counter.touchStart(Date.now(), event.touches ? event.touches.length : 0)) {
         if (this.data.selectedMode === 'optical' && this._fsm && (['DARK', 'LIGHT'].includes(this._fsm.state) || this._fsm.darkAt !== null)) this._sensorTouchCycle = 'optical';
         if (this.data.selectedMode === 'gyro' && this._gyro.fsm && ['OUT', 'BACK'].includes(this._gyro.fsm.state)) this._sensorTouchCycle = 'gyro';
+        if (this.data.selectedMode === 'motion' && this._motion.fsm && ['OUT', 'BACK'].includes(this._motion.fsm.state)) this._sensorTouchCycle = 'motion';
         this._session.add(Date.now());
         if (!this._session.modes.includes('touch')) this._session.modes.push('touch');
         this._showTouchFeedback(event);
@@ -307,6 +332,7 @@ function createTrainingPage(surface) {
       this._session.current().actual = 0; this._counter.count = 0; this.recalibrateOptical();
       if (this.data.selectedMode === 'optical') this._pauseForCalibration('optical');
       if (this.data.selectedMode === 'gyro') this.startGyro();
+      if (this.data.selectedMode === 'motion') this.startMotion();
       if (!this._preparingSensor) this._syncSession();
     },
     onTargetInput(event) { this.setData({ targetDraft: event.detail.value }); },

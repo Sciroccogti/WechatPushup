@@ -10,7 +10,7 @@ function validResult(result) {
       !Number.isInteger(result.fatigue) || result.fatigue < 1 || result.fatigue > 5 || !Number.isFinite(result.activeMs) || result.activeMs < 0 ||
       !Number.isFinite(result.startedAt) || !Number.isFinite(result.endedAt) || result.endedAt < result.startedAt ||
       !Array.isArray(result.groups) || result.groups.length !== (result.purpose === 'plan' ? 5 : 1) || !Array.isArray(result.modes) ||
-      result.modes.some((mode) => !['touch', 'optical', 'gyro', 'timer', 'manual'].includes(mode))) return false;
+      result.modes.some((mode) => !['touch', 'optical', 'gyro', 'motion', 'timer', 'manual'].includes(mode))) return false;
   const maxTarget = exercise.measurement === 'duration' ? POLICY.maxSeconds : POLICY.maxRepetitions;
   if (result.groups.some((group) => !group || !Number.isSafeInteger(group.actual) || group.actual < 0 ||
       !(group.target === null || (Number.isInteger(group.target) && group.target > 0 && group.target <= maxTarget)) ||

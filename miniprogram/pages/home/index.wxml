@@ -12,6 +12,6 @@
     </navigator>
   </view>
   <view wx:if="{{storageWarning}}" class="opt-warning">{{storageWarning}}</view>
-  <view class="muted availability">俯卧撑用光学，仰卧起坐和深蹲用胸前陀螺仪，平板支撑用计时器。自动检测效果待真机验证。</view>
+  <view class="muted availability">俯卧撑用光学；仰卧起坐以加速度为主、旋转为辅；深蹲用胸前陀螺仪；平板支撑用计时器。自动检测效果待真机验证。</view>
   <navigator class="record-link" url="/pages/history/index" open-type="switchTab" hover-class="button-hover">查看训练记录 <text aria-hidden="true">›</text></navigator>
 </view>

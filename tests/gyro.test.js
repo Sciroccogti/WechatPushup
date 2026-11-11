@@ -25,7 +25,7 @@ test('陀螺仪断流重新校准，静止/校准晃动、异常值不误计', (
   assert.equal(moving.state, 'FAULT');
 });
 test('严格按运动分配硬件，胸前X轴默认，休息/后台停止陀螺仪', () => {
-  for (const id of ['sit-up', 'squat']) {
+  for (const id of ['squat']) {
     const h = createRuntime(); const page = h.openPage('training', { exerciseId: id });
     page.startOptical(); assert.equal(h.calls.privacy, 0); assert.equal(h.calls.camera, 0);
     page.startGyro(); assert.equal(h.calls.gyroStart, 1); assert.equal(page.data.phase, 'calibrating');

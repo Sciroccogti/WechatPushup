@@ -41,8 +41,8 @@ test('光学遮挡中的触屏计数不会停止相机，超过600ms后该周期
   page.onUnload(); assert.equal(h.timers.size, 0);
 });
 
-test('仰卧起坐/深蹲的陀螺仪周期中可触屏补数，回程不会重复计数', () => {
-  for (const id of ['sit-up', 'squat']) {
+test('深蹲的陀螺仪周期中可触屏补数，回程不会重复计数', () => {
+  for (const id of ['squat']) {
     const h = createRuntime(); const page = h.openPage('training', { exerciseId: id });
     page.startGyro();
     const hold = (x, milliseconds) => { for (let at = 0; at < milliseconds; at += 20) { h.gyro({ x, y: 0, z: 0 }); h.advance(20); } };

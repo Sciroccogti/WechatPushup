@@ -1,4 +1,4 @@
-const SOURCES = ['touch', 'optical', 'gyro'];
+const SOURCES = ['touch', 'optical', 'gyro', 'motion'];
 
 class CounterManager {
   constructor(options) {

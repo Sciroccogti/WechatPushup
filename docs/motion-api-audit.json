@@ -1,0 +1,28 @@
+{
+  "checkedOn": "2026-11-11",
+  "timezone": "Asia/Hong_Kong",
+  "method": "Direct HTTPS reads of official documentation and latest official npm typings; tarball SHA-512 verified; declarations read without executing package scripts",
+  "registryMetadata": "https://registry.npmjs.org/miniprogram-api-typings/latest",
+  "latestPublishedVersionObserved": "5.3.1",
+  "tarball": "https://registry.npmjs.org/miniprogram-api-typings/-/miniprogram-api-typings-5.3.1.tgz",
+  "integrityVerified": true,
+  "registryIntegrity": "sha512-2CirO+C1z5RmKXDqTUSNbuyouHf5d0/KJTt+Qqi1EsiQYs8jlYhq7yWjp6EdTcJpvZzjuefZQCcDixYbrgIqow==",
+  "declarationFile": "package/types/wx/lib.wx.api.d.ts",
+  "apis": {
+    "startAccelerometer": { "minimumBaseLibrary": "1.1.0", "intervalMinimumBaseLibrary": "2.1.0", "intervalUsed": "game", "url": "https://developers.weixin.qq.com/miniprogram/dev/api/device/accelerometer/wx.startAccelerometer.html" },
+    "onAccelerometerChange": { "minimumBaseLibrary": "not separately specified on fetched page", "fields": ["x", "y", "z"], "unit": "not specified in fetched official field table; use relative magnitude and direction", "url": "https://developers.weixin.qq.com/miniprogram/dev/api/device/accelerometer/wx.onAccelerometerChange.html" },
+    "offAccelerometerChange": { "minimumBaseLibrary": "2.9.3", "listener": "same function object as registration", "url": "https://developers.weixin.qq.com/miniprogram/dev/api/device/accelerometer/wx.offAccelerometerChange.html" },
+    "stopAccelerometer": { "minimumBaseLibrary": "1.1.0", "url": "https://developers.weixin.qq.com/miniprogram/dev/api/device/accelerometer/wx.stopAccelerometer.html" }
+  },
+  "effectiveSourceMinimumBaseLibrary": "2.9.3",
+  "productRecommendedBaseLibrary": "2.32.3 or newer, retaining existing camera privacy flow",
+  "notes": [
+    "onAccelerometerChange registration itself starts listening; register only after explicit user action and remove exact listener on stop",
+    "game is approximately 20 ms per callback, not guaranteed; state machine uses timestamps and resets calibration after frame gaps",
+    "No invented accelerometer or gyroscope authorization scope",
+    "Gyroscope API evidence reused from docs/phase-5.md and verified in official typings",
+    "No raw acceleration or rotation samples persisted or uploaded"
+  ],
+  "evidenceDirectory": ".audit/motion",
+  "hardwareValidation": { "android": "pending", "ios": "pending", "poseRecognition": "experimental; no claim of standard movement recognition" }
+}

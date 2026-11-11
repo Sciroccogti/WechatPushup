@@ -15,7 +15,8 @@ function createRuntime(options = {}) {
   const redirects = [];
   const gyroListeners = new Set();
   const gyroStarts = [];
-  const calls = { camera: 0, stop: 0, writes: 0, privacy: 0, gyroStart: 0, gyroStop: 0 };
+  const accelListeners = new Set(); const accelStarts = [];
+  const calls = { camera: 0, stop: 0, writes: 0, privacy: 0, gyroStart: 0, gyroStop: 0, accelStart: 0, accelStop: 0 };
   const renderPatches = [];
   let now = 100000;
   let timerId = 0;
@@ -29,7 +30,7 @@ function createRuntime(options = {}) {
     setStorageSync(key, value) { calls.writes += 1; if (options.writeFails) throw new Error('full'); storage.set(key, structuredClone(value)); },
     getDeviceInfo: () => ({ platform: options.platform || 'ios', model: 'mock', system: 'mock' }),
     getAppBaseInfo: () => ({ SDKVersion: '3.0.0', version: 'mock' }),
-    canIUse: () => options.unsupported !== true,
+    canIUse: (name) => options.unsupported !== true && !(options.unsupportedApis || []).includes(name),
     onNeedPrivacyAuthorization(fn) { privacyListener = fn; },
     requirePrivacyAuthorize(callbacks) {
       calls.privacy += 1;
@@ -59,6 +60,9 @@ function createRuntime(options = {}) {
     onGyroscopeChange(fn) { gyroListeners.add(fn); }, offGyroscopeChange(fn) { gyroListeners.delete(fn); },
     startGyroscope(callbacks) { calls.gyroStart += 1; gyroStarts.push(callbacks); if (options.gyroFails) callbacks.fail(); else if (!options.delayGyro) callbacks.success(); },
     stopGyroscope() { calls.gyroStop += 1; },
+    onAccelerometerChange(fn) { accelListeners.add(fn); }, offAccelerometerChange(fn) { accelListeners.delete(fn); },
+    startAccelerometer(callbacks) { calls.accelStart += 1; accelStarts.push(callbacks); if (options.accelFails) callbacks.fail(); else if (!options.delayAccel) callbacks.success(); },
+    stopAccelerometer() { calls.accelStop += 1; },
     openSetting() {}, openPrivacyContract() {}, showToast() {}, vibrateShort() {}
   };
   const sandbox = {
@@ -99,7 +103,7 @@ function createRuntime(options = {}) {
     return page;
   }
   return {
-    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage, redirects, gyroListeners, gyroStarts, renderPatches,
+    wx, calls, frames, starts, authorizations, privacyRequests, viewCallbacks, timers, storage, redirects, gyroListeners, gyroStarts, accelListeners, accelStarts, renderPatches,
     now() { return now; },
     loadPage,
     openPage(name, params) { const page = loadPage(name); if (page.onLoad) page.onLoad(params); if (page.onShow) page.onShow(); return page; },
@@ -116,6 +120,7 @@ function createRuntime(options = {}) {
       now = end;
     },
     gyro(raw) { for (const listener of [...gyroListeners]) listener(raw); },
+    accel(raw) { for (const listener of [...accelListeners]) listener(raw); },
     followRedirect(previous) {
       const url = new URL(redirects.at(-1), 'https://local.invalid');
       if (previous.onHide) previous.onHide(); if (previous.onUnload) previous.onUnload();
