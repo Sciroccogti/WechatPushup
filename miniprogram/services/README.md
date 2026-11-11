@@ -11,12 +11,14 @@
 - situp-source.js：加速度主导与陀螺仪辅助的单一motion来源；主失败降级触屏、辅失败提示仅用加速度。两种监听共同释放，各自启动/静默超时与旧回调失效；通过movement-owner.js与深蹲互斥。
 - training-page.js：训练/休息共用页面控制器，连接领域会话与计数来源、计时、后台暂停和累计时长保存。
 - session-runtime.js：单一当前会话，只存在内存；页面redirect传稳定sessionId，禁止并行开始两次训练。
-- training-store.js：能力/长期进展与训练结果，结果ID幂等保存，不自动删除旧记录；历史界面和统计仍在阶段6。
+- training-store.js：能力/长期进展与训练结果，结果ID幂等保存；新增snapshot查询、删除墓碑、本地文本备份/导入预览与确认，不自动删除旧记录。
+- storage/record-document.js：schema1迁移到schema2、每块20条的不可变分块、索引最后提交与事务日志恢复。迁移前保留旧副本。实际存储API仍统一在local-document.js的storageIO中。
+- ../domain/records/：无wx依赖的记录校验、日期筛选、周月统计、连续天数和备份合并规则。
 
-完整训练数据能力仍在阶段 6 开发：
+阶段6当前边界：
 
-- repositories/：计划、训练记录与设置的读写入口。
-- storage/：StorageAdapter、LocalStorageAdapter、版本迁移、导入/导出契约。
+- 本地记录/详情/统计和JSON文本备份已实现；数据查询/转换不放在页面中。
+- 现有计划在导入同运动资料时保留本机，导入不会重新播放结果推进周期。
 - 未来备份通过独立适配器扩展，不在页面和领域层调用网络。
 
 不创建云备份空实现、服务器地址、密钥或后台请求；帧、加速度与陀螺仪原始数据不持久化。

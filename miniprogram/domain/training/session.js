@@ -1,4 +1,5 @@
 const clone = (value) => JSON.parse(JSON.stringify(value));
+const { dayKey } = require('../records/dates');
 
 class TrainingSession {
   constructor({ id, exercise, purpose, plan, at }) {
@@ -17,7 +18,7 @@ class TrainingSession {
     }
     if (this.state === 'ready') { this.tick(at); this.index += 1; }
     if (this.state === 'paused' && this.pausedFrom === 'ready') this.index += 1;
-    if (!this.hasStarted) { this.startedAt = at; this.hasStarted = true; }
+    if (!this.hasStarted) { this.startedAt = at; this.localDate = dayKey(at); this.hasStarted = true; }
     this.state = 'working'; this.lastAt = at;
     if (mode && !this.modes.includes(mode)) this.modes.push(mode);
     return true;
@@ -98,7 +99,7 @@ class TrainingSession {
     const planned = this.groups.reduce((sum, group) => sum + (group.target || 0), 0);
     const actual = this.groups.reduce((sum, group) => sum + group.actual, 0);
     return clone({ id: this.id, exerciseId: this.exerciseId, purpose: this.purpose, deload: this.deload, policyVersion: this.policyVersion,
-      startedAt: this.startedAt, endedAt: this.endedAt, activeMs: this.activeMs, groups: this.groups,
+      startedAt: this.startedAt, endedAt: this.endedAt, localDate: this.localDate || dayKey(this.startedAt), activeMs: this.activeMs, groups: this.groups,
       planned, actual, completion: planned ? actual / planned : null, aborted: this.aborted, fatigue, modes: this.modes });
   }
 }

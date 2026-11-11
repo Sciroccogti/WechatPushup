@@ -21,4 +21,10 @@ class LocalDocument {
     catch (_) { this.warning = '本地保存失败，当前改动仅临时生效，请勿关闭页面。'; return false; }
   }
 }
-module.exports = { LocalDocument };
+// 所有持久化API保持在适配器内，分块仓库只操作这些同步方法。
+const storageIO = {
+  read(api, key) { return api.getStorageSync(key); },
+  write(api, key, value) { api.setStorageSync(key, clone(value)); },
+  remove(api, key) { api.removeStorageSync(key); }
+};
+module.exports = { LocalDocument, storageIO };

@@ -9,6 +9,7 @@
     "pages/rest/index",
     "pages/summary/index",
     "pages/history/index",
+    "pages/record-detail/index",
     "pages/statistics/index",
     "pages/settings/index"
   ],

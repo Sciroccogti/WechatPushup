@@ -95,13 +95,13 @@ function checkApp(appRoot, projectFile) {
       if (!['.js', '.json'].some((ext) => fs.existsSync(dependency + ext))) throw new Error('Missing module: ' + dependency);
     }
     if (/\bwx\.(request|uploadFile|connectSocket|login|createCamera|startLightSensor|onLightSensorChange)\s*\(/.test(source) || /\.(takePhoto|startRecord)\s*\(/.test(source)) throw new Error('Unexpected network/capture API: ' + file);
-    if (/\.(getStorageSync|setStorageSync)\s*\(/.test(source) && file !== path.join(product, 'services/storage/local-document.js')) throw new Error('Storage must go through local document adapter: ' + file);
+    if (/\.(getStorageSync|setStorageSync|removeStorageSync)\s*\(/.test(source) && file !== path.join(product, 'services/storage/local-document.js')) throw new Error('Storage must go through local document adapter: ' + file);
   });
   return app.pages.length;
 }
 const pageCount = checkApp(product, path.join(root, 'project.config.json'));
 const demoPageCount = checkApp(demo, path.join(demo, 'project.config.json'));
-if (pageCount !== 11) throw new Error('Expected 11 pages after merging exercise selection into training.');
+if (pageCount !== 12) throw new Error('Expected 12 pages including training record details.');
 if (readJson(path.join(product, 'app.json')).pages.includes('pages/exercises/index')) throw new Error('Standalone exercise selector is retired.');
 const wxml = fs.readFileSync(path.join(demo, 'pages/index/index.wxml'), 'utf8');
 if (!wxml.includes('frame-size="small"') || !wxml.includes('device-position="front"') || !wxml.includes('wx:if="{{cameraMounted}}"')) throw new Error('Demo camera safety attributes missing');

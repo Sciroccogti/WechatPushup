@@ -1,0 +1,12 @@
+<view class="page">
+  <view wx:if="{{warning}}" class="opt-warning">{{warning}}</view>
+  <block wx:if="{{record}}">
+    <view class="page-title">{{record.name}}</view><view class="muted">{{record.date}} · {{record.purpose}} · {{record.status}}</view>
+    <view class="card spaced"><view class="detail-total">{{record.actual}} <text>{{record.unit}}</text></view><view class="plan-row"><text>目标 / 完成率</text><text>{{record.target}} {{record.unit}} / {{record.completion}}</text></view><view class="plan-row"><text>实际训练</text><text>{{record.elapsed}}</text></view><view class="plan-row"><text>组间实际休息</text><text>{{record.rest}}</text></view><view class="plan-row"><text>开始</text><text>{{record.date}} {{record.startTime}}</text></view><view class="plan-row"><text>结束</text><text>{{record.endDate}} {{record.endTime}}</text></view><view class="plan-row"><text>主观疲劳</text><text>{{record.fatigue}}</text></view><view class="muted spaced">计数方式：{{record.modes}}</view></view>
+    <view class="card spaced"><view class="section-title">每组记录</view><view wx:for="{{record.groups}}" wx:key="number" class="detail-group"><view class="plan-row"><text>第 {{item.number}} 组 · {{item.status}}</text><text>{{item.actual}} / {{item.target}} {{record.unit}}</text></view><view class="muted">原目标 {{item.original}} {{record.unit}} · 训练 {{item.elapsed}} · 休息 {{item.rest}}</view></view></view>
+    <button class="opt-button spaced" bindtap="askDelete">删除此记录</button>
+    <view wx:if="{{confirming}}" class="card spaced"><view class="section-title">确认删除这条记录？</view><view class="muted spaced">删除后从历史和统计中移除。已据此调整的训练计划和累计训练时长排序保持；备份可保留原记录，但旧备份不会自动复活已删除记录。</view><view class="opt-row"><button class="opt-button" bindtap="cancelDelete">取消</button><button class="opt-button opt-primary" bindtap="confirmDelete">确认删除</button></view></view>
+  </block>
+  <empty-state wx:else heading="{{removed ? '记录已删除' : '记录不存在或无法读取'}}" show-home="{{false}}" />
+  <navigator class="button button-secondary spaced" url="/pages/history/index" open-type="switchTab">回到训练记录</navigator>
+</view>

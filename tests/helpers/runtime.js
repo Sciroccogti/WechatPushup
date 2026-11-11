@@ -28,6 +28,7 @@ function createRuntime(options = {}) {
   const wx = {
     getStorageSync(key) { if (options.readFails) throw new Error('read'); return storage.has(key) ? structuredClone(storage.get(key)) : ''; },
     setStorageSync(key, value) { calls.writes += 1; if (options.writeFails) throw new Error('full'); storage.set(key, structuredClone(value)); },
+    removeStorageSync(key) { if (options.removeFails) throw new Error('remove'); storage.delete(key); },
     getDeviceInfo: () => ({ platform: options.platform || 'ios', model: 'mock', system: 'mock' }),
     getAppBaseInfo: () => ({ SDKVersion: '3.0.0', version: 'mock' }),
     canIUse: (name) => options.unsupported !== true && !(options.unsupportedApis || []).includes(name),

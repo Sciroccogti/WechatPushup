@@ -9,7 +9,8 @@
       <button wx:if="{{!exercise.isTimed && !saved}}" class="opt-button" bindtap="correctLastCount">撤销末组误计 −1</button>
       <view class="spaced">主观疲劳</view><picker mode="selector" range="{{fatigueOptions}}" value="{{fatigueIndex}}" bindchange="onFatigueChange" disabled="{{saved}}"><view class="field-input">{{fatigueOptions[fatigueIndex]}} ▾</view></picker>
       <button class="button button-primary spaced" bindtap="saveResult" disabled="{{saved}}">{{saved ? '已保存' : '保存结果并更新计划'}}</button>
-      <view class="muted spaced">离开页面会按当前疲劳选择自动保存；未调整时按“适中”处理。历史浏览与统计功能将在后续开放。</view>
+      <view class="muted spaced">离开页面会按当前疲劳选择自动保存；未调整时按“适中”处理。保存后可在“记录”中查看每组详情和统计。</view>
+      <navigator wx:if="{{saved}}" class="button button-secondary spaced" url="/pages/record-detail/index?id={{result.id}}" open-type="redirect">查看此条训练记录</navigator>
       <view wx:if="{{message}}" class="opt-warning">{{message}}</view>
       <view wx:for="{{nextReasons}}" wx:key="*this" class="muted spaced">{{item}}</view>
       <view wx:if="{{nextTime}}" class="muted spaced">下次建议训练：{{nextTime}}</view>

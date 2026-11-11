@@ -23,7 +23,7 @@ module.exports = {
       if (!this._store.finish(result)) { if (render) this.setData({ message: this._store.warning }); return; }
       if (!render) { this.data.saved = true; return; }
       const plan = this._store.plan(result.exerciseId, Date.now());
-      this.setData({ saved: true, result, nextReasons: plan.reasons, nextTime: plan.nextTrainAt ? dateLabel(plan.nextTrainAt) : '', message: '已保存近期训练结果并更新个人计划。' });
+      this.setData({ saved: true, result, nextReasons: plan.reasons, nextTime: plan.nextTrainAt ? dateLabel(plan.nextTrainAt) : '', message: '已保存训练记录并更新个人计划。' });
     } catch (_) { if (render) this.setData({ message: '结果无法保存；能力测试需得到大于0的有效次数或秒数。' }); }
   },
   correctLastCount() {

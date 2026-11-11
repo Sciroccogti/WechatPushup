@@ -1,1 +1,1 @@
-Page({});
+Page(require('./controller'));

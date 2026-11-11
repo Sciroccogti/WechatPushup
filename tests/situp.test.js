@@ -52,7 +52,7 @@ test('半周期触屏后超600ms再完成也不重复计数；触屏继续并行
   assert.equal(p.data.count, 1); assert.equal(h.accelListeners.size, 1); assert.equal(h.gyroListeners.size, 1);
   s.cycle(); assert.equal(p.data.count, 2); p.pauseCounting(); p.startCounting();
   assert.equal(p.data.phase, 'calibrating'); assert.equal(p.data.count, 2); s.calibrate(); s.cycle(); assert.equal(p.data.count, 3);
-  p.onUnload(); const saved = h.storage.get(TRAINING_KEY); assert.ok(Object.values(saved.results).some((r) => r.modes.includes('motion')));
+  p.onUnload(); const saved = new TrainingStore(h.wx).snapshot(); assert.ok(Object.values(saved.results).some((r) => r.modes.includes('motion')));
 });
 
 test('主加速度失败/缺接口/无信号降级触屏；校准时间不累计，后台同时释放两个监听', () => {
