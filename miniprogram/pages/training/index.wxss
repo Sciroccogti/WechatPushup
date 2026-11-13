@@ -54,7 +54,7 @@
 .training-action-status { margin-top: 18rpx; font-size: 25rpx; color: #245dbe; text-align: center; min-height: 40rpx; }
 .training-setup { padding: 22rpx; background: #fff; border: 1rpx solid #e3eaf4; border-radius: 28rpx; }
 .training-controls .opt-button { background: #e8eef7; color: #3e5a7c; }
-.training-controls .opt-primary { background: #245dbe; color: #fff; }
+.training-controls .opt-primary { background: #bd4618; color: #fff; }
 .training-sensor-readout { font-size: 22rpx; color: #526985; text-align: center; padding: 10rpx; }
 .training-empty { margin-top: 38rpx; }
 /* 训练/休息页使用大触区，覆盖全局小号光学工具按钮的尺寸。 */

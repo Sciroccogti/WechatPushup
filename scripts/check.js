@@ -53,6 +53,13 @@ function checkApp(appRoot, projectFile) {
   if (!Array.isArray(app.pages) || app.pages.length === 0 || new Set(app.pages).size !== app.pages.length) throw new Error('Invalid pages: ' + appRoot);
   const tabs = new Set((app.tabBar ? app.tabBar.list : []).map((item) => item.pagePath));
   for (const tab of tabs) if (!app.pages.includes(tab)) throw new Error('Tab not registered: ' + tab);
+  for (const tab of app.tabBar ? app.tabBar.list : []) {
+    for (const key of ['iconPath', 'selectedIconPath']) {
+      if (!tab[key]) continue;
+      const icon = fs.readFileSync(inside(appRoot, path.join(appRoot, tab[key])));
+      if (path.extname(tab[key]) !== '.png' || icon.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || icon.length > 40000) throw new Error('Invalid tab icon: ' + tab[key]);
+    }
+  }
   const checked = new Set();
   function checkEntry(stem, component) {
     inside(appRoot, stem);
