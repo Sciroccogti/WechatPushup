@@ -17,7 +17,7 @@
     <view class="opt-hint">百分比相对于校准亮度；低于遮挡阈值并稳定恢复后计一次。两个阈值始终保留至少 5% 间距。</view>
     <view wx:for="{{sliders}}" wx:key="key" class="opt-slider">
       <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.value}} {{item.unit}}</text></view>
-      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onSettingChanging" bindchange="onSettingChange" />
+      <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#245dbe" bindchanging="onSettingChanging" bindchange="onSettingChange" />
     </view>
     <view class="opt-hint">拖动立即应用，松手保存；基准保留，未完成的半个周期会清除。改变环境光后请重新校准。默认参数仅为实验起点。</view>
     <button class="opt-button" bindtap="resetOpticalSettings">恢复默认参数</button>
@@ -39,7 +39,7 @@
       <picker mode="selector" range="{{gyroAxes}}" value="{{rotationAxisIndex}}" bindchange="onRotationAxisChange"><view class="field-input">辅助旋转：{{gyroAxes[rotationAxisIndex]}} ▾</view></picker>
       <view wx:for="{{situpSliders}}" wx:key="key" class="opt-slider">
         <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.display}} {{item.unit}}</text></view>
-        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onSitupSettingChanging" bindchange="onSitupSettingChange" />
+        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#245dbe" bindchanging="onSitupSettingChanging" bindchange="onSitupSettingChange" />
       </view>
       <view class="opt-hint">拖动立即应用，松手保存。保留起始基准、清除半周期，请先回到起始姿态再测试。角度为加速度方向估计，不代表标准动作。旋转不可用时提示并仅用加速度；加速度不可用时用触屏。</view>
       <button class="opt-button" bindtap="resetSitupSettings">恢复仰卧起坐默认参数</button>
@@ -61,7 +61,7 @@
       <picker mode="selector" range="{{gyroAxes}}" value="{{gyroAxisIndex}}" bindchange="onGyroAxisChange"><view class="field-input">{{gyroAxes[gyroAxisIndex]}} ▾</view></picker>
       <view wx:for="{{gyroSliders}}" wx:key="key" class="opt-slider">
         <view class="opt-slider-label"><text>{{item.label}}</text><text>{{item.display}} {{item.unit}}</text></view>
-        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#c84716" bindchanging="onGyroSettingChanging" bindchange="onGyroSettingChange" />
+        <slider min="{{item.min}}" max="{{item.max}}" step="{{item.step}}" value="{{item.value}}" data-key="{{item.key}}" activeColor="#245dbe" bindchanging="onGyroSettingChanging" bindchange="onGyroSettingChange" />
       </view>
       <view class="opt-hint">拖动即时应用，松手保存；保留静止校准基准，丢弃未完成周期，请短暂静止再测试。速度与幅度为原始信号阈值，不代表标准姿态或角度。</view>
       <button class="opt-button" bindtap="resetGyroSettings">恢复本运动默认参数</button>

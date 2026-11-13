@@ -1,6 +1,6 @@
-.empty-state { padding: 56rpx 32rpx; background: #fff; border: 1rpx solid #dce3ed; border-radius: 28rpx; text-align: center; }
-.status-mark { display: flex; align-items: center; justify-content: center; width: 100rpx; height: 100rpx; margin: 0 auto 28rpx; border-radius: 32rpx; background: #fff0e6; color: #c84716; font-size: 42rpx; font-weight: 700; }
-.heading { font-size: 36rpx; font-weight: 600; color: #12243a; line-height: 1.4; }
-.description { margin-top: 20rpx; color: #607087; font-size: 28rpx; line-height: 1.8; }
-.home-link { display: flex; align-items: center; justify-content: center; min-height: 96rpx; margin-top: 36rpx; border-radius: 20rpx; padding: 20rpx; background: #fff0e6; color: #c84716; font-size: 28rpx; }
+.empty-state { padding: 56rpx 32rpx; background: #fff; border: 1rpx solid #d5dfed; border-radius: 28rpx; text-align: center; }
+.status-mark { display: flex; align-items: center; justify-content: center; width: 100rpx; height: 100rpx; margin: 0 auto 28rpx; border-radius: 32rpx; background: #e8f0fc; color: #245dbe; font-size: 42rpx; font-weight: 700; }
+.heading { font-size: 36rpx; font-weight: 600; color: #182e49; line-height: 1.4; }
+.description { margin-top: 20rpx; color: #5d6f87; font-size: 28rpx; line-height: 1.8; }
+.home-link { display: flex; align-items: center; justify-content: center; min-height: 96rpx; margin-top: 36rpx; border-radius: 20rpx; padding: 20rpx; background: #e8f0fc; color: #245dbe; font-size: 28rpx; }
 .link-hover { opacity: .8; }

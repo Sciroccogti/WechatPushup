@@ -15,15 +15,15 @@
   ],
   "window": {
     "navigationBarTitleText": "随身健身教练",
-    "navigationBarBackgroundColor": "#111e2f",
+    "navigationBarBackgroundColor": "#142b49",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f1f4f8",
+    "backgroundColor": "#f2f5fa",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#bdcbe0",
-    "selectedColor": "#ff8848",
-    "backgroundColor": "#1c2d45",
+    "color": "#bccde3",
+    "selectedColor": "#8fc0ff",
+    "backgroundColor": "#142b49",
     "borderStyle": "black",
     "list": [
       {

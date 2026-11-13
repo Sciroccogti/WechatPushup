@@ -13,7 +13,7 @@ function createTrainingPage(surface) {
   return withOpticalPage({
     data: { exercise: null, count: 0, total: 0, selectedMode: 'touch', phase: 'idle', notice: '', blockedMessage: '',
       exercises: [], exerciseNames: [], exerciseIndex: 0, sortOptions: ['累计训练时长', '最近使用'], sortIndex: 0,
-      feedbackColor: '#f1f4f8', touchRipples: [], groupSettingsOpen: false,
+      feedbackColor: '#f2f5fa', touchRipples: [], groupSettingsOpen: false,
       purpose: 'free', groupNumber: 1, groupCount: 1, target: '—', targetDraft: '', restSeconds: 0,
       elapsed: '0秒', groupRows: [], gyroAxisLabel: GYRO_AXES[0], gyro: { state: 'IDLE', x: '—', y: '—', z: '—', angle: '—' },
       motion: { state: 'IDLE', tilt: '—', auxiliary: '旋转辅助' } },
