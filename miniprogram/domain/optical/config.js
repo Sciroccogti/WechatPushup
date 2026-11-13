@@ -1,7 +1,7 @@
 // 实验起点，不代表经过真机验证的参数。亮度范围 0..255，不是 lux。
 const DEFAULTS = Object.freeze({
-  darkRatio: 0.62,
-  lightRatio: 0.82,
+  darkRatio: 0.75,
+  lightRatio: 0.85,
   warmupMs: 1000,
   calibrationSamples: 20,
   calibrationSpanMs: 1800,

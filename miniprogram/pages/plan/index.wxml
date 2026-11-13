@@ -12,6 +12,31 @@
       <navigator class="button button-secondary spaced" url="{{assessmentUrl}}" open-type="redirect">{{plan.needsAssessment ? '初始能力评估' : plan.reassessDue ? '重新评估能力（建议）' : '修改 / 重新评估能力'}}</navigator>
       <navigator wx:if="{{!resumeUrl}}" class="button button-secondary spaced" url="{{freeUrl}}" open-type="redirect">{{plan.recovery ? '查看自由训练（恢复期不建议高强度）' : '自由训练'}}</navigator>
     </view>
+    <!-- 俯卧撑使用提示 -->
+    <view wx:if="{{exercise.id === 'push-up'}}" class="card spaced pushup-guide">
+      <view class="section-title">俯卧撑使用提示</view>
+
+      <view class="guide-item">
+        <view class="guide-title">📱 手机摆放</view>
+        <view class="guide-desc">
+          请将手机放置在地面，确保前置摄像头正对面部。
+        </view>
+      </view>
+
+      <view class="guide-item">
+        <view class="guide-title">📷 摄像头计数</view>
+        <view class="guide-desc">
+          小程序通过摄像头画面的亮度变化，自动判断俯卧撑次数。
+        </view>
+      </view>
+
+      <view class="guide-item">
+        <view class="guide-title">👆 触屏计数</view>
+        <view class="guide-desc">
+          也可以用鼻尖轻触屏幕，触发计数。
+        </view>
+      </view>
+    </view>
     <view wx:if="{{message}}" class="opt-warning">{{message}}</view>
     <navigator class="button home-link" url="/pages/home/index" open-type="switchTab">回到首页</navigator>
   </block>

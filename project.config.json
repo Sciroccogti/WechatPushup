@@ -2,11 +2,12 @@
   "description": "随身健身教练 · 原生小程序",
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
-  "appid": "touristappid",
+  "appid": "wx05c4bee9c6ba8a5d",
   "projectname": "fitness-coach",
   "setting": {
     "es6": true,
     "minified": false,
     "urlCheck": true
-  }
+  },
+  "isGameTourist": false
 }

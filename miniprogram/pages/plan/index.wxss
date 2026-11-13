@@ -1,1 +1,26 @@
 /* 页面专属样式在对应功能阶段添加；通用布局来自 app.wxss。 */
+
+/* 俯卧撑使用提示 */
+.pushup-guide {
+  margin-top: 24rpx;
+}
+
+.guide-item {
+  padding: 16rpx 0;
+}
+
+.guide-item + .guide-item {
+  border-top: 1rpx solid #eeeeee;
+}
+
+.guide-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.guide-desc {
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #777777;
+}
