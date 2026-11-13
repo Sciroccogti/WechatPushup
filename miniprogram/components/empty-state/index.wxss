@@ -1,5 +1,5 @@
-.empty-state { padding: 56rpx 32rpx; background: #fff; border: 1rpx solid #d5dfed; border-radius: 28rpx; text-align: center; }
-.status-mark { display: flex; align-items: center; justify-content: center; width: 100rpx; height: 100rpx; margin: 0 auto 28rpx; border-radius: 32rpx; background: #e8f0fc; color: #245dbe; font-size: 42rpx; font-weight: 700; }
+.empty-state { padding: 48rpx 28rpx; background: #fff; border: 1rpx solid #e3eaf4; border-radius: 28rpx; text-align: center; box-shadow: 0 6rpx 24rpx rgba(20,43,73,.035); }
+.status-mark { display: flex; align-items: center; justify-content: center; width: 96rpx; height: 96rpx; margin: 0 auto 24rpx; border-radius: 28rpx; background: #edf3fc; color: #245dbe; font-size: 40rpx; font-weight: 600; }
 .heading { font-size: 36rpx; font-weight: 600; color: #182e49; line-height: 1.4; }
 .description { margin-top: 20rpx; color: #5d6f87; font-size: 28rpx; line-height: 1.8; }
 .home-link { display: flex; align-items: center; justify-content: center; min-height: 96rpx; margin-top: 36rpx; border-radius: 20rpx; padding: 20rpx; background: #e8f0fc; color: #245dbe; font-size: 28rpx; }

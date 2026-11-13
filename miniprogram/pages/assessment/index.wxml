@@ -1,6 +1,6 @@
 <view class="page">
   <block wx:if="{{exercise}}">
-    <view class="page-title">{{exercise.name}} · 能力评估</view>
+    <view class="page-eyebrow">能力评估</view><view class="page-title">{{exercise.name}}</view>
     <view class="card form-card">
       <view class="section-title">记录当前最大有效{{exercise.isTimed ? '坚持时间' : '次数'}}</view>
       <view class="muted spaced">可进行一次测试，也可以填写已知能力。不适或疼痛时停止，不为完成数字强撑。</view>

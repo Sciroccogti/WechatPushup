@@ -1,6 +1,6 @@
 <view class="page">
   <block wx:if="{{exercise}}">
-    <view class="page-title">{{exercise.name}} · 训练方式</view>
+    <view class="page-eyebrow">训练方式</view><view class="page-title">{{exercise.name}}</view>
     <navigator wx:for="{{modes}}" wx:key="id" class="card spaced mode-card" url="{{item.url}}" open-type="redirect"><view class="section-title">{{item.label}} ›</view><view class="muted spaced">{{item.detail}}</view></navigator>
   </block>
   <empty-state wx:else heading="请先选择运动项目" />

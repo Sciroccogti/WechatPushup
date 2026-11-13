@@ -1,6 +1,6 @@
 <view class="page rest-page">
   <block wx:if="{{exercise && !blockedMessage}}">
-    <view class="page-title">{{exercise.name}} · 组间恢复</view>
+    <view class="page-eyebrow">组间恢复</view><view class="page-title">{{exercise.name}}</view>
     <view class="counter-preview"><view class="preview-heading">第{{groupNumber}}组已结束</view><view class="counter-value">{{phase === 'ready' ? '就绪' : restSeconds}}<text class="counter-unit">{{phase === 'ready' ? '' : '秒'}}</text></view><view class="counter-caption">{{phase === 'paused' ? '休息已暂停' : phase === 'ready' ? '休息结束，点击开始下一组' : '放松呼吸，准备下一组'}}</view></view>
     <view class="opt-row"><button class="opt-button" bindtap="endRest" disabled="{{phase !== 'rest'}}">提前结束休息</button><button class="opt-button" bindtap="extendRest" disabled="{{phase !== 'rest'}}">延长30秒</button></view>
     <button wx:if="{{phase === 'paused'}}" class="button button-primary spaced" bindtap="resumeRest">继续休息</button>

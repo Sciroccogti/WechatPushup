@@ -1,6 +1,6 @@
 <view class="page">
   <block wx:if="{{exercise && plan}}">
-    <view class="page-title">{{exercise.name}} · 长期计划</view>
+    <view class="page-eyebrow">长期计划</view><view class="page-title">{{exercise.name}}</view>
     <view wx:if="{{resumeUrl}}" class="card spaced"><navigator class="button button-primary" url="{{resumeUrl}}" open-type="redirect">返回未结束训练</navigator></view>
     <view class="card spaced">
       <view class="section-title">{{plan.needsAssessment ? '先了解自己的起点' : plan.recovery ? '今天先恢复' : plan.deload ? '本次减量训练' : '本次五组目标'}}</view>

@@ -1,6 +1,6 @@
 <view class="page">
   <block wx:if="{{result && exercise}}">
-    <view class="page-title">{{exercise.name}} · 本次总结</view>
+    <view class="page-eyebrow">本次总结</view><view class="page-title">{{exercise.name}}</view>
     <view class="card spaced">
       <view class="section-title">完成 {{result.actual}} {{exercise.unit}}</view>
       <view class="muted spaced">实际训练 {{elapsed}} · {{result.aborted ? '提前结束' : '已结束'}}</view>

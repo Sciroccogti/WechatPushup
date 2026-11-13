@@ -1,6 +1,6 @@
 const APP_INFO = Object.freeze({
   name: '随身健身教练',
-  version: '0.6.1'
+  version: '0.6.2'
 });
 
 module.exports = { APP_INFO };

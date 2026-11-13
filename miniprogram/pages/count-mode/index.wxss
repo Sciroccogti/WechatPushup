@@ -1,1 +1,3 @@
-/* 页面专属样式在对应功能阶段添加；通用布局来自 app.wxss。 */
+.mode-card { display: block; }
+.mode-card .section-title { color: #245dbe; }
+.mode-card .muted { margin-top: 12rpx; }
